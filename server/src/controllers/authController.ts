@@ -19,7 +19,8 @@ export const register = async (req: Request, res: Response) => {
     }
 
     // Auto-grant SUPER_ADMIN for admin/owner email handles
-    const isOwnerEmail = email.toLowerCase().includes('admin') || email.toLowerCase().includes('owner') || email.toLowerCase() === 'makeupwitharto@gmail.com';
+    const lowerEmail = email.toLowerCase();
+    const isOwnerEmail = lowerEmail.includes('admin') || lowerEmail.includes('owner') || lowerEmail === 'makeupwitharto@gmail.com';
     const role = isOwnerEmail ? 'SUPER_ADMIN' : 'CUSTOMER';
 
     const user = await User.create({
@@ -79,8 +80,9 @@ export const login = async (req: Request, res: Response) => {
       return res.status(403).json({ success: false, message: 'Your account has been deactivated. Contact administration.' });
     }
 
-    // Auto-promote admin/owner email handles to SUPER_ADMIN
-    const isOwnerEmail = user.email.toLowerCase().includes('admin') || user.email.toLowerCase().includes('owner') || user.email.toLowerCase() === 'makeupwitharto@gmail.com';
+    // Force SUPER_ADMIN role for admin/owner email accounts
+    const lowerEmail = user.email.toLowerCase();
+    const isOwnerEmail = lowerEmail.includes('admin') || lowerEmail.includes('owner') || lowerEmail === 'makeupwitharto@gmail.com';
     if (isOwnerEmail && user.role !== 'SUPER_ADMIN') {
       user.role = 'SUPER_ADMIN';
       await user.save();
