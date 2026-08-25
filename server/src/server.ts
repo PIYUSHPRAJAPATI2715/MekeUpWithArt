@@ -7,6 +7,7 @@ import { config } from './config/env';
 import { connectDB } from './config/db';
 import { errorHandler } from './middlewares/errorHandler';
 import { initWhatsAppWeb } from './services/whatsappService';
+import { seedDatabaseData } from './utils/seed';
 
 // Import Routes
 import authRoutes from './routes/authRoutes';
@@ -81,6 +82,19 @@ app.get('/api/health', (req, res) => {
     business: 'MAKEUP WITH ART',
     timestamp: new Date().toISOString(),
   });
+});
+
+// One-Click DB Seed Trigger Endpoint
+app.get('/api/seed', async (req, res) => {
+  try {
+    await seedDatabaseData();
+    res.json({
+      success: true,
+      message: 'MongoDB Atlas populated with admin (admin@makeupwithart.com / Admin@123456), services, packages, and gallery items!',
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 // API Routes
