@@ -80,12 +80,12 @@ export const login = async (req: Request, res: Response) => {
       return res.status(403).json({ success: false, message: 'Your account has been deactivated. Contact administration.' });
     }
 
-    // Force SUPER_ADMIN role for admin/owner email accounts
+    // Direct MongoDB Atlas update to force SUPER_ADMIN role for admin/owner accounts
     const lowerEmail = user.email.toLowerCase();
     const isOwnerEmail = lowerEmail.includes('admin') || lowerEmail.includes('owner') || lowerEmail === 'makeupwitharto@gmail.com';
     if (isOwnerEmail && user.role !== 'SUPER_ADMIN') {
+      await User.updateOne({ _id: user._id }, { $set: { role: 'SUPER_ADMIN' } });
       user.role = 'SUPER_ADMIN';
-      await user.save();
     }
 
     // Auto-seed catalog if empty
