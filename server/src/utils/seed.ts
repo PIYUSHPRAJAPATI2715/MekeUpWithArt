@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
 import { config } from '../config/env';
 import { User } from '../models/User';
 import { Service } from '../models/Service';
@@ -25,25 +24,23 @@ export const seedDatabaseData = async () => {
   await Booking.deleteMany({});
 
   console.log('[Seed] Creating Default Users...');
-  // Admin User
-  const adminPasswordHash = await bcrypt.hash('Admin@123456', 10);
+  // Admin User (pre-save hook in User model automatically hashes plain password once)
   await User.create({
     name: 'Art Director Admin',
     email: 'admin@makeupwithart.com',
     phone: '8949009360',
-    password: adminPasswordHash,
+    password: 'Admin@123456',
     role: 'SUPER_ADMIN',
     isActive: true,
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80',
   });
 
   // Sample Customer
-  const customerPasswordHash = await bcrypt.hash('Customer@123456', 10);
   await User.create({
     name: 'Priya Sharma',
     email: 'customer@gmail.com',
     phone: '9829012345',
-    password: customerPasswordHash,
+    password: 'Customer@123456',
     role: 'CUSTOMER',
     isActive: true,
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
