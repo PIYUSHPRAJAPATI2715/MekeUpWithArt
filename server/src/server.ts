@@ -84,8 +84,8 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// One-Click DB Seed Trigger Endpoint
-app.get('/api/seed', async (req, res) => {
+// Seed Endpoint (Available at both /seed and /api/seed)
+const handleSeed = async (req: express.Request, res: express.Response) => {
   try {
     await seedDatabaseData();
     res.json({
@@ -95,7 +95,10 @@ app.get('/api/seed', async (req, res) => {
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
-});
+};
+
+app.get('/seed', handleSeed);
+app.get('/api/seed', handleSeed);
 
 // API Routes
 app.use('/api/auth', authRoutes);
