@@ -37,6 +37,4 @@ const PackageSchema = new Schema<IPackage>(
   { timestamps: true }
 );
 
-PackageSchema.index({ slug: 1 });
-
 export const Package = mongoose.model<IPackage>('Package', PackageSchema);

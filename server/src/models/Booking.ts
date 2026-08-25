@@ -51,6 +51,5 @@ const BookingSchema = new Schema<IBooking>(
 
 BookingSchema.index({ customer: 1 });
 BookingSchema.index({ date: 1, timeSlot: 1, status: 1 });
-BookingSchema.index({ bookingId: 1 });
 
 export const Booking = mongoose.model<IBooking>('Booking', BookingSchema);
