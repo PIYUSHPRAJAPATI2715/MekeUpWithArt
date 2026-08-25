@@ -6,6 +6,7 @@ import path from 'path';
 import { config } from './config/env';
 import { connectDB } from './config/db';
 import { errorHandler } from './middlewares/errorHandler';
+import { initWhatsAppWeb } from './services/whatsappService';
 
 // Import Routes
 import authRoutes from './routes/authRoutes';
@@ -76,7 +77,7 @@ app.use('/api/contact', contactRoutes);
 // Centralized Error Handler
 app.use(errorHandler);
 
-// Start Server
+// Start Server & Init WhatsApp Web Client
 const PORT = config.PORT;
 app.listen(PORT, () => {
   console.log(`\n==================================================`);
@@ -84,4 +85,7 @@ app.listen(PORT, () => {
   console.log(`  Environment: ${config.NODE_ENV}`);
   console.log(`  Listening on: http://localhost:${PORT}`);
   console.log(`==================================================\n`);
+
+  // Initialize whatsapp-web.js QR Scanner
+  initWhatsAppWeb();
 });
