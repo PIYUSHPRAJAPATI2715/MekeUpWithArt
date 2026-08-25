@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { User } from '../models/User';
+import { Service } from '../models/Service';
 import { generateToken } from '../utils/generateToken';
 import { AuthRequest } from '../middlewares/authMiddleware';
 import { seedDatabaseData } from '../utils/seed';
@@ -17,13 +18,24 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'User with this email already exists' });
     }
 
+    // Auto-grant SUPER_ADMIN for admin/owner email handles
+    const isOwnerEmail = email.toLowerCase().includes('admin') || email.toLowerCase().includes('owner') || email.toLowerCase() === 'makeupwitharto@gmail.com';
+    const role = isOwnerEmail ? 'SUPER_ADMIN' : 'CUSTOMER';
+
     const user = await User.create({
       name,
       email,
       phone,
       password,
-      role: 'CUSTOMER',
+      role,
     });
+
+    // Auto-seed demo services/packages if database has no services
+    const serviceCount = await Service.countDocuments();
+    if (serviceCount === 0) {
+      console.log('[Register] Empty services detected. Auto-seeding catalog...');
+      await seedDatabaseData();
+    }
 
     const token = generateToken(user._id.toString(), user.role);
 
@@ -54,16 +66,6 @@ export const login = async (req: Request, res: Response) => {
 
     let user: any = await User.findOne({ email }).select('+password');
 
-    // Guaranteed Admin & Demo Data Seeding if admin user doesn't exist yet
-    if (!user) {
-      const userCount = await User.countDocuments();
-      if (userCount === 0 || email === 'admin@makeupwithart.com') {
-        console.log('[Auth Controller] Seeding default admin & services into MongoDB Atlas...');
-        await seedDatabaseData();
-        user = await User.findOne({ email }).select('+password');
-      }
-    }
-
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
@@ -75,6 +77,20 @@ export const login = async (req: Request, res: Response) => {
 
     if (!user.isActive) {
       return res.status(403).json({ success: false, message: 'Your account has been deactivated. Contact administration.' });
+    }
+
+    // Auto-promote admin/owner email handles to SUPER_ADMIN
+    const isOwnerEmail = user.email.toLowerCase().includes('admin') || user.email.toLowerCase().includes('owner') || user.email.toLowerCase() === 'makeupwitharto@gmail.com';
+    if (isOwnerEmail && user.role !== 'SUPER_ADMIN') {
+      user.role = 'SUPER_ADMIN';
+      await user.save();
+    }
+
+    // Auto-seed catalog if empty
+    const serviceCount = await Service.countDocuments();
+    if (serviceCount === 0) {
+      console.log('[Login] Empty services detected. Auto-seeding catalog...');
+      await seedDatabaseData();
     }
 
     const token = generateToken(user._id.toString(), user.role);
