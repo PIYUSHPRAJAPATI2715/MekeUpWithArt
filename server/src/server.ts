@@ -27,7 +27,18 @@ const app = express();
 // Connect Database
 connectDB();
 
-// 1. Custom Bulletproof CORS & Preflight Middleware (Handles Vercel & Cross-Origin Requests)
+// 1. CORS Middleware Configuration
+const corsOptions: cors.CorsOptions = {
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// 2. Additional Headers Fallback Middleware
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (origin) {
