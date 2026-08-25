@@ -12,12 +12,6 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
     }
 
-    // Auto-seed if empty
-    const userCount = await User.countDocuments();
-    if (userCount === 0) {
-      await seedDatabaseData();
-    }
-
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'User with this email already exists' });
@@ -58,14 +52,18 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
     }
 
-    // Auto-seed database if empty
-    const userCount = await User.countDocuments();
-    if (userCount === 0) {
-      console.log('[Auth] Database empty. Auto-seeding initial demo data and admin users...');
-      await seedDatabaseData();
+    let user: any = await User.findOne({ email }).select('+password');
+
+    // Guaranteed Admin & Demo Data Seeding if admin user doesn't exist yet
+    if (!user) {
+      const userCount = await User.countDocuments();
+      if (userCount === 0 || email === 'admin@makeupwithart.com') {
+        console.log('[Auth Controller] Seeding default admin & services into MongoDB Atlas...');
+        await seedDatabaseData();
+        user = await User.findOne({ email }).select('+password');
+      }
     }
 
-    const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
