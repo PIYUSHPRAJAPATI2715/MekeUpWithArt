@@ -27,19 +27,25 @@ const app = express();
 // Connect Database
 connectDB();
 
-// Security Middlewares
+// Security & Robust CORS Middleware
 app.use(helmet({ crossOriginResourcePolicy: false }));
+
 app.use(
   cors({
-    origin: [config.CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: true, // Dynamically allow request origin (Vercel, localhost, etc.)
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   })
 );
+
+// Explicit Pre-flight OPTIONS Handler
+app.options('*', cors());
 
 // Rate Limiter
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 300, // Limit each IP
+  max: 500, // Limit each IP
   message: 'Too many requests from this IP, please try again later.',
 });
 app.use('/api', limiter);
