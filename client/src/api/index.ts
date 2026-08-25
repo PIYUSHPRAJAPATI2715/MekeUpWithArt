@@ -1,21 +1,8 @@
 import axios from 'axios';
 
-let rawUrl = (import.meta as any).env?.VITE_API_URL || '/api';
-
-// Auto-fix URL formatting so /api prefix is guaranteed
-if (rawUrl.startsWith('http')) {
-  const clean = rawUrl.replace(/\/$/, '');
-  if (!clean.endsWith('/api')) {
-    rawUrl = `${clean}/api`;
-  } else {
-    rawUrl = clean;
-  }
-}
-
-const API_URL = rawUrl;
-
+// Relative /api route powered by Vercel Edge proxy rules in vercel.json
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
   },
