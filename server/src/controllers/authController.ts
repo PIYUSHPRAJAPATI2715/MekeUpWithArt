@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { User } from '../models/User';
 import { generateToken } from '../utils/generateToken';
 import { AuthRequest } from '../middlewares/authMiddleware';
+import { seedDatabaseData } from '../utils/seed';
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -9,6 +10,12 @@ export const register = async (req: Request, res: Response) => {
 
     if (!name || !email || !phone || !password) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
+    }
+
+    // Auto-seed if empty
+    const userCount = await User.countDocuments();
+    if (userCount === 0) {
+      await seedDatabaseData();
     }
 
     const existingUser = await User.findOne({ email });
@@ -51,6 +58,13 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
     }
 
+    // Auto-seed database if empty
+    const userCount = await User.countDocuments();
+    if (userCount === 0) {
+      console.log('[Auth] Database empty. Auto-seeding initial demo data and admin users...');
+      await seedDatabaseData();
+    }
+
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -62,7 +76,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     if (!user.isActive) {
-      return res.status(403).json({ success: false, message: 'Your account has been disabled by admin' });
+      return res.status(403).json({ success: false, message: 'Your account has been deactivated. Contact administration.' });
     }
 
     const token = generateToken(user._id.toString(), user.role);
@@ -86,7 +100,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const getMe = async (req: AuthRequest, res: Response) => {
   try {
-    const user = await User.findById(req.user?._id);
+    const user = await User.findById(req.user?.id);
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -110,7 +124,7 @@ export const getMe = async (req: AuthRequest, res: Response) => {
 export const updateProfile = async (req: AuthRequest, res: Response) => {
   try {
     const { name, phone, avatar } = req.body;
-    const user = await User.findById(req.user?._id);
+    const user = await User.findById(req.user?.id);
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -118,12 +132,13 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
 
     if (name) user.name = name;
     if (phone) user.phone = phone;
-    if (avatar !== undefined) user.avatar = avatar;
+    if (avatar) user.avatar = avatar;
 
     await user.save();
 
     res.json({
       success: true,
+      message: 'Profile updated successfully',
       user: {
         id: user._id,
         name: user.name,
