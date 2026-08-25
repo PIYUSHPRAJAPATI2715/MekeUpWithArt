@@ -27,20 +27,26 @@ const app = express();
 // Connect Database
 connectDB();
 
-// Security & Robust CORS Middleware
-app.use(helmet({ crossOriginResourcePolicy: false }));
+// 1. Custom Bulletproof CORS & Preflight Middleware (Handles Vercel & Cross-Origin Requests)
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization, Accept, Origin');
 
-app.use(
-  cors({
-    origin: true, // Dynamically allow request origin (Vercel, localhost, etc.)
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-  })
-);
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
 
-// Explicit Pre-flight OPTIONS Handler
-app.options('*', cors());
+// Security Middlewares
+app.use(helmet({ crossOriginResourcePolicy: false, crossOriginEmbedderPolicy: false }));
 
 // Rate Limiter
 const limiter = rateLimit({
