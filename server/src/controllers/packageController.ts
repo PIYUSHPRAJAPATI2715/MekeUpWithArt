@@ -2,15 +2,22 @@ import { Request, Response } from 'express';
 import { Package } from '../models/Package';
 import { slugify } from '../utils/slugify';
 import { AuthRequest } from '../middlewares/authMiddleware';
+import { seedDatabaseData } from '../utils/seed';
 
 export const getPackages = async (req: Request, res: Response) => {
   try {
+    const packageCount = await Package.countDocuments();
+    if (packageCount === 0) {
+      console.log('[Packages] Empty packages catalog. Auto-seeding catalog...');
+      await seedDatabaseData();
+    }
+
     const { status, search } = req.query;
     const query: any = {};
 
-    if (status) {
+    if (status && status !== 'All') {
       query.status = status;
-    } else {
+    } else if (!status) {
       query.status = 'Active';
     }
 
@@ -23,7 +30,7 @@ export const getPackages = async (req: Request, res: Response) => {
 
     const packages = await Package.find(query)
       .populate('servicesIncluded', 'name category price duration')
-      .sort({ sortOrder: 1, createdAt: -1 });
+      .sort({ isPopular: -1, createdAt: -1 });
 
     res.json({ success: true, data: packages });
   } catch (error: any) {
@@ -45,15 +52,13 @@ export const getPackageBySlug = async (req: Request, res: Response) => {
 
 export const createPackage = async (req: AuthRequest, res: Response) => {
   try {
-    const { name, description, servicesIncluded, originalPrice, discountPrice, duration, validityDays, benefits, image, status, featured } = req.body;
+    const { name, description, servicesIncluded, originalPrice, discountPrice, duration, validityDays, image, isPopular, status } = req.body;
 
     if (!name || !description || !originalPrice || !discountPrice) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
     }
 
-    let slug = slugify(name);
-    const existing = await Package.findOne({ slug });
-    if (existing) slug = `${slug}-${Date.now()}`;
+    const slug = slugify(name);
 
     const pkg = await Package.create({
       name,
@@ -62,12 +67,11 @@ export const createPackage = async (req: AuthRequest, res: Response) => {
       servicesIncluded: servicesIncluded || [],
       originalPrice,
       discountPrice,
-      duration: duration || 60,
+      duration: duration || 120,
       validityDays: validityDays || 30,
-      benefits: benefits || [],
-      image: image || '',
+      images: image ? [image] : [],
+      isPopular: isPopular || false,
       status: status || 'Active',
-      featured: featured || false,
     });
 
     res.status(201).json({ success: true, data: pkg });
@@ -83,12 +87,14 @@ export const updatePackage = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ success: false, message: 'Package not found' });
     }
 
-    if (req.body.name && req.body.name !== pkg.name) {
-      req.body.slug = slugify(req.body.name);
-    }
+    if (req.body.name) req.body.slug = slugify(req.body.name);
 
-    const updated = await Package.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    res.json({ success: true, data: updated });
+    const updatedPackage = await Package.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.json({ success: true, data: updatedPackage });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -96,10 +102,12 @@ export const updatePackage = async (req: AuthRequest, res: Response) => {
 
 export const deletePackage = async (req: AuthRequest, res: Response) => {
   try {
-    const pkg = await Package.findByIdAndDelete(req.params.id);
+    const pkg = await Package.findById(req.params.id);
     if (!pkg) {
       return res.status(404).json({ success: false, message: 'Package not found' });
     }
+
+    await pkg.deleteOne();
     res.json({ success: true, message: 'Package deleted successfully' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

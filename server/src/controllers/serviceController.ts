@@ -16,10 +16,10 @@ export const getServices = async (req: Request, res: Response) => {
 
     const query: any = {};
     
-    // Non-admin default to Active only
-    if (status) {
+    // Ignore status filter if status === 'All'
+    if (status && status !== 'All') {
       query.status = status;
-    } else {
+    } else if (!status) {
       query.status = 'Active';
     }
 
