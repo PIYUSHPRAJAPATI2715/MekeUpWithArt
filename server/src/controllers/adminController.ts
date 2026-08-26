@@ -63,11 +63,22 @@ export const getDashboardStats = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getBusinessSettings = async (req: AuthRequest, res: Response) => {
+export const getSettingsPublic = async (req: any, res: Response) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     let settings = await BusinessSettings.findOne();
     if (!settings) {
-      settings = await BusinessSettings.create({});
+      settings = await BusinessSettings.create({
+        businessName: 'MAKEUP WITH ART',
+        phoneNumbers: ['9352769045', '7575939735'],
+        email: 'makeupwitharto@gmail.com',
+        address: 'Pillar No. 113, Shyam Nagar Metro Station, Jaipur',
+        instagram: 'makeup.with.art',
+        googleMapsIframeUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3558.8912!2d75.7621!3d26.8912',
+        heroTitle: 'CRAFTING LUXURY BEAUTY & ARTISTRY',
+        heroSubheading: 'Experience Jaipur\'s premier unisex salon destination for HD bridal makeup, couture hair smoothing, hydra facials & 3D chrome nail art.',
+        aboutContent: 'At MAKEUP WITH ART, beauty is an immersive art form. Located at Shyam Nagar Metro Station, our luxury unisex studio delivers world-class salon experiences.',
+      });
     }
     res.json({ success: true, data: settings });
   } catch (error: any) {
@@ -75,7 +86,26 @@ export const getBusinessSettings = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const updateBusinessSettings = async (req: AuthRequest, res: Response) => {
+export const getSettings = async (req: AuthRequest, res: Response) => {
+  try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    let settings = await BusinessSettings.findOne();
+    if (!settings) {
+      settings = await BusinessSettings.create({
+        businessName: 'MAKEUP WITH ART',
+        phoneNumbers: ['9352769045', '7575939735'],
+        email: 'makeupwitharto@gmail.com',
+        address: 'Pillar No. 113, Shyam Nagar Metro Station, Jaipur',
+        instagram: 'makeup.with.art',
+      });
+    }
+    res.json({ success: true, data: settings });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updateSettings = async (req: AuthRequest, res: Response) => {
   try {
     let settings = await BusinessSettings.findOne();
     if (!settings) {
@@ -98,9 +128,29 @@ export const updateBusinessSettings = async (req: AuthRequest, res: Response) =>
   }
 };
 
+export const getBusinessSettings = getSettings;
+export const updateBusinessSettings = updateSettings;
+
 export const getWorkingHours = async (req: AuthRequest, res: Response) => {
   try {
-    const hours = await WorkingHours.find().sort({ createdAt: 1 });
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    let hours = await WorkingHours.find();
+    if (hours.length === 0) {
+      console.log('[WorkingHours] Empty catalog detected. Auto-seeding 7 default days 10:30 to 21:30...');
+      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      for (const day of days) {
+        await WorkingHours.create({
+          day,
+          isOpen: true,
+          openTime: '10:30',
+          closeTime: '21:30',
+          breakStart: '14:00',
+          breakEnd: '14:30',
+          slotIntervalMinutes: 30,
+        });
+      }
+      hours = await WorkingHours.find();
+    }
     res.json({ success: true, data: hours });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -109,7 +159,7 @@ export const getWorkingHours = async (req: AuthRequest, res: Response) => {
 
 export const updateWorkingHours = async (req: AuthRequest, res: Response) => {
   try {
-    const { hours } = req.body; // array of working hour objects
+    const { hours } = req.body;
     if (!Array.isArray(hours)) {
       return res.status(400).json({ success: false, message: 'Invalid payload, expected array' });
     }
@@ -123,10 +173,11 @@ export const updateWorkingHours = async (req: AuthRequest, res: Response) => {
       adminEmail: req.user?.email || '',
       action: 'UPDATE_WORKING_HOURS',
       entity: 'WorkingHours',
-      details: 'Updated weekly operating hours & break times',
+      details: 'Updated salon weekly operating hours or break times',
     });
 
-    res.json({ success: true, message: 'Working hours updated successfully' });
+    const updatedHours = await WorkingHours.find();
+    res.json({ success: true, data: updatedHours });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -134,6 +185,7 @@ export const updateWorkingHours = async (req: AuthRequest, res: Response) => {
 
 export const getHolidays = async (req: AuthRequest, res: Response) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     const holidays = await Holiday.find().sort({ date: 1 });
     res.json({ success: true, data: holidays });
   } catch (error: any) {
@@ -143,20 +195,19 @@ export const getHolidays = async (req: AuthRequest, res: Response) => {
 
 export const createHoliday = async (req: AuthRequest, res: Response) => {
   try {
-    const { date, title, isFullDay, notes } = req.body;
+    const { date, title, isFullDay, customOpenTime, customCloseTime } = req.body;
     if (!date || !title) {
       return res.status(400).json({ success: false, message: 'Date and title are required' });
     }
 
-    const holiday = await Holiday.create({ date, title, isFullDay: isFullDay ?? true, notes: notes || '' });
+    const holiday = await Holiday.create({ date, title, isFullDay: isFullDay !== false, customOpenTime, customCloseTime });
 
     await AuditLog.create({
       admin: req.user?._id,
       adminEmail: req.user?.email || '',
       action: 'CREATE_HOLIDAY',
       entity: 'Holiday',
-      entityId: holiday._id.toString(),
-      details: `Added holiday: ${title} on ${date}`,
+      details: `Added holiday block for ${date} (${title})`,
     });
 
     res.status(201).json({ success: true, data: holiday });
@@ -167,8 +218,18 @@ export const createHoliday = async (req: AuthRequest, res: Response) => {
 
 export const deleteHoliday = async (req: AuthRequest, res: Response) => {
   try {
-    await Holiday.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: 'Holiday deleted successfully' });
+    const holiday = await Holiday.findByIdAndDelete(req.params.id);
+    if (!holiday) return res.status(404).json({ success: false, message: 'Holiday not found' });
+
+    await AuditLog.create({
+      admin: req.user?._id,
+      adminEmail: req.user?.email || '',
+      action: 'DELETE_HOLIDAY',
+      entity: 'Holiday',
+      details: `Removed holiday block for date ${holiday.date}`,
+    });
+
+    res.json({ success: true, message: 'Holiday removed' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -176,6 +237,7 @@ export const deleteHoliday = async (req: AuthRequest, res: Response) => {
 
 export const getAuditLogs = async (req: AuthRequest, res: Response) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     const logs = await AuditLog.find().sort({ createdAt: -1 }).limit(100);
     res.json({ success: true, data: logs });
   } catch (error: any) {

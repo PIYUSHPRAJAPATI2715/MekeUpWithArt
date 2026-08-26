@@ -47,7 +47,21 @@ export const AdminSettingsPage: React.FC = () => {
 
     // Load Working Hours
     adminApi.getWorkingHours().then((res) => {
-      if (res.data.success) setWorkingHours(res.data.data);
+      if (res.data.success) {
+        if (res.data.data && res.data.data.length > 0) {
+          setWorkingHours(res.data.data);
+        } else {
+          const defaultDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((d) => ({
+            day: d,
+            isOpen: true,
+            openTime: '10:30',
+            closeTime: '21:30',
+            breakStart: '14:00',
+            breakEnd: '14:30',
+          }));
+          setWorkingHours(defaultDays);
+        }
+      }
     });
 
     // Load Holidays
