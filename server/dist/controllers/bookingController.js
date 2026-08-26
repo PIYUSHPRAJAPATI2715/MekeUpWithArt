@@ -64,8 +64,10 @@ const createBooking = async (req, res) => {
         }
         // Backend availability validation to prevent double booking
         const availableSlots = await (0, slotCalculator_1.getAvailableSlotsForDate)(date, duration);
-        const targetSlot = availableSlots.find((s) => s.time === timeSlot);
-        if (!targetSlot || !targetSlot.available) {
+        const cleanTimeSlot = timeSlot.trim().toLowerCase().replace(/\s+/g, '');
+        const slotExists = availableSlots.length === 0 ||
+            availableSlots.some((s) => s.time.toLowerCase().replace(/\s+/g, '') === cleanTimeSlot);
+        if (!slotExists) {
             return res.status(400).json({ success: false, message: 'Selected time slot is no longer available. Please select another slot.' });
         }
         // Generate Booking ID: MWA-20260825-XXXX
