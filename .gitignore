@@ -4,6 +4,7 @@ node_modules/
 # Production builds
 dist/
 build/
+!server/dist/
 
 # Uploads
 uploads/
