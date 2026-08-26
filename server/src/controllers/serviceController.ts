@@ -8,8 +8,12 @@ export const getServices = async (req: Request, res: Response) => {
   try {
     const serviceCount = await Service.countDocuments();
     if (serviceCount === 0) {
-      console.log('[Services] Empty database detected. Auto-seeding services and admin accounts...');
-      await seedDatabaseData();
+      console.log('[Services] Empty database detected. Auto-seeding catalog...');
+      try {
+        await seedDatabaseData();
+      } catch (seedErr: any) {
+        console.error('[Services Seed Error]:', seedErr.message);
+      }
     }
 
     const { category, search, sort, status, page = 1, limit = 50 } = req.query;
