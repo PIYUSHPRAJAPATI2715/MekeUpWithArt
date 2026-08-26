@@ -11,66 +11,73 @@ import { WorkingHours } from '../models/WorkingHours';
 import { Booking } from '../models/Booking';
 
 export const seedDatabaseData = async () => {
-  console.log('[Seed] Clearing existing database collections...');
-  await User.deleteMany({});
-  await Service.deleteMany({});
-  await Package.deleteMany({});
-  await Staff.deleteMany({});
-  await Gallery.deleteMany({});
-  await Testimonial.deleteMany({});
-  await BusinessSettings.deleteMany({});
-  await WorkingHours.deleteMany({});
-  await Booking.deleteMany({});
+  console.log('[Seed] Seeding database safely without wiping active users...');
 
-  console.log('[Seed] Creating Default Users...');
-  await User.create({
-    name: 'Art Director Admin',
-    email: 'admin@makeupwithart.com',
-    phone: '9352769045',
-    password: 'Admin@123456',
-    role: 'SUPER_ADMIN',
-    isActive: true,
-    avatar: '/logo.png',
-  });
+  // Admin User
+  const adminUser = await User.findOne({ email: 'admin@makeupwithart.com' });
+  if (!adminUser) {
+    await User.create({
+      name: 'Art Director Admin',
+      email: 'admin@makeupwithart.com',
+      phone: '9352769045',
+      password: 'Admin@123456',
+      role: 'SUPER_ADMIN',
+      isActive: true,
+      avatar: '/logo.png',
+    });
+  } else if (adminUser.role !== 'SUPER_ADMIN') {
+    adminUser.role = 'SUPER_ADMIN';
+    await adminUser.save();
+  }
 
-  await User.create({
-    name: 'Priya Sharma',
-    email: 'customer@gmail.com',
-    phone: '7575939735',
-    password: 'Customer@123456',
-    role: 'CUSTOMER',
-    isActive: true,
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-  });
-
-  console.log('[Seed] Creating Business Settings...');
-  await BusinessSettings.create({
-    businessName: 'MAKEUP WITH ART',
-    phoneNumbers: ['9352769045', '7575939735'],
-    email: 'makeupwitharto@gmail.com',
-    address: 'Pillar No. 113, Shyam Nagar Metro Station, Jaipur',
-    instagram: 'makeup.with.art',
-    googleMapsIframeUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3558.8912!2d75.7621!3d26.8912',
-    heroTitle: 'CRAFTING LUXURY BEAUTY & ARTISTRY',
-    heroSubheading: 'Experience Jaipur\'s premier unisex salon destination for HD bridal & groom makeup, couture hair smoothing, hydra facials, Russian lash lifts & 3D chrome nail art.',
-    aboutContent: 'At MAKEUP WITH ART, beauty is an immersive art form. Located at Pillar No. 113, Shyam Nagar Metro Station, our luxury studio delivers world-class unisex salon experiences with organic formulations and certified master artists.',
-  });
-
-  console.log('[Seed] Creating Working Hours (10:30 AM to 9:30 PM)...');
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  for (const day of days) {
-    await WorkingHours.create({
-      day,
-      isOpen: true,
-      openTime: '10:30',
-      closeTime: '21:30',
-      breakStart: '14:00',
-      breakEnd: '14:30',
-      slotIntervalMinutes: 30,
+  // Sample Customer
+  const customerUser = await User.findOne({ email: 'customer@gmail.com' });
+  if (!customerUser) {
+    await User.create({
+      name: 'Priya Sharma',
+      email: 'customer@gmail.com',
+      phone: '7575939735',
+      password: 'Customer@123456',
+      role: 'CUSTOMER',
+      isActive: true,
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
     });
   }
 
-  console.log('[Seed] Creating Comprehensive Services...');
+  // Business Settings
+  const settingsCount = await BusinessSettings.countDocuments();
+  if (settingsCount === 0) {
+    await BusinessSettings.create({
+      businessName: 'MAKEUP WITH ART',
+      phoneNumbers: ['9352769045', '7575939735'],
+      email: 'makeupwitharto@gmail.com',
+      address: 'Pillar No. 113, Shyam Nagar Metro Station, Jaipur',
+      instagram: 'makeup.with.art',
+      googleMapsIframeUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3558.8912!2d75.7621!3d26.8912',
+      heroTitle: 'CRAFTING LUXURY BEAUTY & ARTISTRY',
+      heroSubheading: 'Experience Jaipur\'s premier unisex salon destination for HD bridal & groom makeup, couture hair smoothing, hydra facials, Russian lash lifts & 3D chrome nail art.',
+      aboutContent: 'At MAKEUP WITH ART, beauty is an immersive art form. Located at Pillar No. 113, Shyam Nagar Metro Station, our luxury studio delivers world-class unisex salon experiences with organic formulations and certified master artists.',
+    });
+  }
+
+  // Working Hours (10:30 AM to 9:30 PM)
+  const hoursCount = await WorkingHours.countDocuments();
+  if (hoursCount === 0) {
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    for (const day of days) {
+      await WorkingHours.create({
+        day,
+        isOpen: true,
+        openTime: '10:30',
+        closeTime: '21:30',
+        breakStart: '14:00',
+        breakEnd: '14:30',
+        slotIntervalMinutes: 30,
+      });
+    }
+  }
+
+  // Services Catalog
   const servicesData = [
     // Bridal Makeup
     {
@@ -233,110 +240,122 @@ export const seedDatabaseData = async () => {
   for (const s of servicesData) {
     try {
       const slug = s.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-      const serv = await Service.create({
-        ...s,
-        slug,
-      });
+      let serv = await Service.findOne({ slug });
+      if (!serv) {
+        serv = await Service.create({ ...s, slug });
+      }
       createdServices.push(serv);
     } catch (err: any) {
       console.error('[Service Seed Error]:', err.message);
     }
   }
 
-  console.log('[Seed] Creating Packages...');
-  try {
-    const includedIds = createdServices.slice(0, 4).map(s => s._id);
-    await Package.create([
-      {
-        name: 'Royal Bridal & Groom Luxury Combo',
-        slug: 'royal-bridal-groom-luxury-combo',
-        description: 'Ultimate wedding package for both bride and groom including HD Airbrush makeup, hair keratin, hydra facials & nail art.',
-        servicesIncluded: includedIds,
-        originalPrice: 34996,
-        discountPrice: 24999,
-        validityDays: 30,
-        duration: 360,
-        images: ['https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80'],
-        status: 'Active',
-        isPopular: true,
-      },
-      {
-        name: 'Festival Deluxe Pamper Package',
-        slug: 'festival-deluxe-pamper-package',
-        description: 'Complete festive glow makeover including Hydra Facial, Keratin Spa, Russian Manicure & Lash Lift.',
-        servicesIncluded: includedIds.slice(0, 2),
-        originalPrice: 11997,
-        discountPrice: 6999,
-        validityDays: 15,
-        duration: 210,
-        images: ['https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80'],
-        status: 'Active',
-        isPopular: true,
-      },
-    ]);
-  } catch (err: any) {
-    console.error('[Package Seed Error]:', err.message);
+  // Packages Catalog
+  const packagesCount = await Package.countDocuments();
+  if (packagesCount === 0 && createdServices.length > 0) {
+    try {
+      const includedIds = createdServices.slice(0, 4).map(s => s._id);
+      await Package.create([
+        {
+          name: 'Royal Bridal & Groom Luxury Combo',
+          slug: 'royal-bridal-groom-luxury-combo',
+          description: 'Ultimate wedding package for both bride and groom including HD Airbrush makeup, hair keratin, hydra facials & nail art.',
+          servicesIncluded: includedIds,
+          originalPrice: 34996,
+          discountPrice: 24999,
+          validityDays: 30,
+          duration: 360,
+          images: ['https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80'],
+          status: 'Active',
+          isPopular: true,
+        },
+        {
+          name: 'Festival Deluxe Pamper Package',
+          slug: 'festival-deluxe-pamper-package',
+          description: 'Complete festive glow makeover including Hydra Facial, Keratin Spa, Russian Manicure & Lash Lift.',
+          servicesIncluded: includedIds.slice(0, 2),
+          originalPrice: 11997,
+          discountPrice: 6999,
+          validityDays: 15,
+          duration: 210,
+          images: ['https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80'],
+          status: 'Active',
+          isPopular: true,
+        },
+      ]);
+    } catch (err: any) {
+      console.error('[Package Seed Error]:', err.message);
+    }
   }
 
-  console.log('[Seed] Creating Staff Roster...');
-  try {
-    await Staff.create([
-      {
-        name: 'Aarti Prajapati',
-        role: 'Master Makeup & Hair Artist',
-        phone: '9352769045',
-        email: 'aarti@makeupwithart.com',
-        services: ['Bridal Makeup', 'Groom Makeup', 'Hair Art'],
-        status: 'Active',
-        photo: '/logo.png',
-      },
-      {
-        name: 'Piyush Prajapati',
-        role: 'Senior Stylist & Creative Director',
-        phone: '7575939735',
-        email: 'piyush@makeupwithart.com',
-        services: ['Hair Art', 'Groom Makeup', 'Nail Art'],
-        status: 'Active',
-        photo: '/logo.png',
-      },
-    ]);
-  } catch (err: any) {
-    console.error('[Staff Seed Error]:', err.message);
+  // Staff Roster
+  const staffCount = await Staff.countDocuments();
+  if (staffCount === 0) {
+    try {
+      await Staff.create([
+        {
+          name: 'Aarti Prajapati',
+          role: 'Master Makeup & Hair Artist',
+          phone: '9352769045',
+          email: 'aarti@makeupwithart.com',
+          services: ['Bridal Makeup', 'Groom Makeup', 'Hair Art'],
+          status: 'Active',
+          photo: '/logo.png',
+        },
+        {
+          name: 'Piyush Prajapati',
+          role: 'Senior Stylist & Creative Director',
+          phone: '7575939735',
+          email: 'piyush@makeupwithart.com',
+          services: ['Hair Art', 'Groom Makeup', 'Nail Art'],
+          status: 'Active',
+          photo: '/logo.png',
+        },
+      ]);
+    } catch (err: any) {
+      console.error('[Staff Seed Error]:', err.message);
+    }
   }
 
-  console.log('[Seed] Creating Testimonials...');
-  try {
-    await Testimonial.create([
-      {
-        customerName: 'Meghna Roy',
-        review: 'Aarti did my HD airbrush bridal makeup for my wedding in Jaipur. The makeup stayed flawless for 24 hours and looked royal in photographs!',
-        rating: 5,
-        status: 'Approved',
-      },
-      {
-        customerName: 'Rahul & Neha Sharma',
-        review: 'We booked the Royal Bridal & Groom combo. Best salon in Shyam Nagar! Professional team, luxury ambience & top-tier keratin treatment.',
-        rating: 5,
-        status: 'Approved',
-      },
-    ]);
-  } catch (err: any) {
-    console.error('[Testimonial Seed Error]:', err.message);
+  // Testimonials
+  const testimonialCount = await Testimonial.countDocuments();
+  if (testimonialCount === 0) {
+    try {
+      await Testimonial.create([
+        {
+          customerName: 'Meghna Roy',
+          review: 'Aarti did my HD airbrush bridal makeup for my wedding in Jaipur. The makeup stayed flawless for 24 hours and looked royal in photographs!',
+          rating: 5,
+          status: 'Approved',
+        },
+        {
+          customerName: 'Rahul & Neha Sharma',
+          review: 'We booked the Royal Bridal & Groom combo. Best salon in Shyam Nagar! Professional team, luxury ambience & top-tier keratin treatment.',
+          rating: 5,
+          status: 'Approved',
+        },
+      ]);
+    } catch (err: any) {
+      console.error('[Testimonial Seed Error]:', err.message);
+    }
   }
 
-  console.log('[Seed] Creating Gallery Portfolio...');
-  try {
-    await Gallery.create([
-      { title: 'HD Royal Airbrush Bridal Makeup', category: 'Makeup', imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80', isFeatured: true },
-      { title: 'Couture Keratin Protein Smoothing', category: 'Hair', imageUrl: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80', isFeatured: true },
-      { title: '3D Chrome Gel Nail Art Extensions', category: 'Nails', imageUrl: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80', isFeatured: true },
-      { title: 'Royal Groom Beard Sculpting & Styling', category: 'Hair', imageUrl: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=80', isFeatured: true },
-    ]);
-  } catch (err: any) {
-    console.error('[Gallery Seed Error]:', err.message);
+  // Gallery Portfolio
+  const galleryCount = await Gallery.countDocuments();
+  if (galleryCount === 0) {
+    try {
+      await Gallery.create([
+        { title: 'HD Royal Airbrush Bridal Makeup', category: 'Makeup', imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80', isFeatured: true },
+        { title: 'Couture Keratin Protein Smoothing', category: 'Hair', imageUrl: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80', isFeatured: true },
+        { title: '3D Chrome Gel Nail Art Extensions', category: 'Nails', imageUrl: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80', isFeatured: true },
+        { title: 'Royal Groom Beard Sculpting & Styling', category: 'Hair', imageUrl: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=80', isFeatured: true },
+      ]);
+    } catch (err: any) {
+      console.error('[Gallery Seed Error]:', err.message);
+    }
   }
 
-  console.log('[Seed] Comprehensive demo data populated successfully!');
+  console.log('[Seed] Database populated successfully!');
   return true;
 };
 
