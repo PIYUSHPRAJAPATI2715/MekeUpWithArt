@@ -41,11 +41,20 @@ export const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = 
   ];
 
   return (
-    <aside
-      className={`fixed inset-y-0 left-0 z-[1010] w-64 bg-salon-dark/95 backdrop-blur-xl border-r border-salon-border/60 flex flex-col justify-between transition-transform duration-300 ${
-        isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      }`}
-    >
+    <>
+      {/* Mobile Drawer Backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-[1005] bg-black/70 backdrop-blur-sm lg:hidden transition-opacity"
+          onClick={onClose}
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-[1010] w-64 bg-salon-dark/95 backdrop-blur-xl border-r border-salon-border/60 flex flex-col justify-between transition-transform duration-300 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
       <div className="p-5 space-y-6 overflow-y-auto">
         {/* Logo */}
         <div className="flex items-center gap-3 pb-4 border-b border-salon-border/60">
@@ -111,5 +120,6 @@ export const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = 
         </button>
       </div>
     </aside>
+    </>
   );
 };
