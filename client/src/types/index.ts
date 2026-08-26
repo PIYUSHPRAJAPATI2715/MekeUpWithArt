@@ -17,7 +17,7 @@ export interface IService {
   _id: string;
   name: string;
   slug: string;
-  category: 'Hair' | 'Skin' | 'Makeup' | 'Nails' | 'Eyelash' | 'Other';
+  category: string;
   description: string;
   shortDescription: string;
   price: number;

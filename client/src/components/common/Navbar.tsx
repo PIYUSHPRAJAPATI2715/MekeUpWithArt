@@ -86,14 +86,16 @@ export const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-salon-gold-dark via-salon-gold to-salon-gold-light flex items-center justify-center text-salon-dark font-bold shadow-lg shadow-salon-gold/20 group-hover:scale-105 transition-transform">
-            <Scissors className="w-5 h-5" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="MAKEUP WITH ART"
+            className="w-10 h-10 sm:w-11 sm:h-11 object-contain rounded-full border border-salon-gold/50 shadow-lg group-hover:scale-105 transition-transform bg-salon-dark p-0.5"
+          />
           <div>
-            <span className="font-serif text-xl sm:text-2xl font-bold tracking-wider text-gold-gradient uppercase block">
+            <span className="font-serif text-lg sm:text-xl font-bold tracking-wider text-gold-gradient uppercase block">
               MAKEUP WITH ART
             </span>
-            <span className="text-[10px] tracking-[0.2em] text-salon-muted uppercase block font-sans">
+            <span className="text-[9px] tracking-[0.2em] text-salon-muted uppercase block font-sans">
               PREMIUM UNISEX SALON
             </span>
           </div>

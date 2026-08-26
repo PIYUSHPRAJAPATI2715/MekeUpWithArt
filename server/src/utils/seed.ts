@@ -12,7 +12,6 @@ import { Booking } from '../models/Booking';
 
 export const seedDatabaseData = async () => {
   console.log('[Seed] Clearing existing database collections...');
-  // Clear existing data
   await User.deleteMany({});
   await Service.deleteMany({});
   await Package.deleteMany({});
@@ -24,22 +23,20 @@ export const seedDatabaseData = async () => {
   await Booking.deleteMany({});
 
   console.log('[Seed] Creating Default Users...');
-  // Admin User (pre-save hook in User model automatically hashes plain password once)
   await User.create({
     name: 'Art Director Admin',
     email: 'admin@makeupwithart.com',
-    phone: '8949009360',
+    phone: '9352769045',
     password: 'Admin@123456',
     role: 'SUPER_ADMIN',
     isActive: true,
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80',
+    avatar: '/logo.png',
   });
 
-  // Sample Customer
   await User.create({
     name: 'Priya Sharma',
     email: 'customer@gmail.com',
-    phone: '9829012345',
+    phone: '7575939735',
     password: 'Customer@123456',
     role: 'CUSTOMER',
     isActive: true,
@@ -49,83 +46,171 @@ export const seedDatabaseData = async () => {
   console.log('[Seed] Creating Business Settings...');
   await BusinessSettings.create({
     businessName: 'MAKEUP WITH ART',
-    phoneNumbers: ['8949009360', '7357496309'],
+    phoneNumbers: ['9352769045', '7575939735'],
     email: 'makeupwitharto@gmail.com',
     address: 'Pillar No. 113, Shyam Nagar Metro Station, Jaipur',
     instagram: 'makeup.with.art',
     googleMapsIframeUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3558.8912!2d75.7621!3d26.8912',
     heroTitle: 'CRAFTING LUXURY BEAUTY & ARTISTRY',
-    heroSubheading: 'Experience Jaipur\'s premier unisex salon destination for high-definition bridal makeup, couture hair transformations, hydra facials & aesthetic nails.',
-    aboutContent: 'At MAKEUP WITH ART, beauty is an immersive art form. Located at Shyam Nagar Metro Station, our luxury unisex studio combines international techniques with premium organic formulations.',
+    heroSubheading: 'Experience Jaipur\'s premier unisex salon destination for HD bridal & groom makeup, couture hair smoothing, hydra facials, Russian lash lifts & 3D chrome nail art.',
+    aboutContent: 'At MAKEUP WITH ART, beauty is an immersive art form. Located at Pillar No. 113, Shyam Nagar Metro Station, our luxury studio delivers world-class unisex salon experiences with organic formulations and certified master artists.',
   });
 
-  console.log('[Seed] Creating Working Hours...');
+  console.log('[Seed] Creating Working Hours (10:30 AM to 9:30 PM)...');
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   for (const day of days) {
     await WorkingHours.create({
       day,
       isOpen: true,
-      openTime: '10:00',
-      closeTime: '20:00',
+      openTime: '10:30',
+      closeTime: '21:30',
       breakStart: '14:00',
       breakEnd: '14:30',
       slotIntervalMinutes: 30,
     });
   }
 
-  console.log('[Seed] Creating Services...');
+  console.log('[Seed] Creating Comprehensive Services...');
   const servicesData = [
+    // Bridal Makeup
     {
-      name: 'Signature HD Bridal Makeup',
-      category: 'Makeup',
-      description: 'Long-lasting, waterproof high-definition airbrush bridal makeup tailored for royal Indian weddings.',
+      name: 'Signature HD Airbrush Bridal Makeup',
+      category: 'Bridal Makeup',
+      description: 'Ultra HD waterproof airbrush bridal makeup with 24-hour stay, premium lash application, hair styling, outfit draping & jewel setting.',
       duration: 180,
-      price: 15000,
-      discountPrice: 12999,
+      price: 18000,
+      discountPrice: 14999,
       images: ['https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80'],
       isFeatured: true,
       status: 'Active',
     },
     {
-      name: 'Keratin Hair Smoothing & Spa',
-      category: 'Hair',
-      description: 'Formaldehyde-free protein therapy for silky, frizz-free hair with intense shine and strength.',
+      name: 'Royal Pre-Bridal Pamper Ritual',
+      category: 'Bridal Makeup',
+      description: 'Complete pre-wedding body polishing, gold facial, full body waxing, hair spa & deluxe manicure-pedicure.',
+      duration: 240,
+      price: 12500,
+      discountPrice: 9999,
+      images: ['https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80'],
+      isFeatured: true,
+      status: 'Active',
+    },
+    {
+      name: 'Engagement & Sagan Glam Makeup',
+      category: 'Bridal Makeup',
+      description: 'Soft glam HD makeup with subtle shimmer, customized hair do & saree/lehenga draping for pre-wedding functions.',
       duration: 120,
-      price: 4999,
-      discountPrice: 3999,
+      price: 8500,
+      discountPrice: 6999,
+      images: ['https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=800&q=80'],
+      isFeatured: false,
+      status: 'Active',
+    },
+
+    // Groom Makeup & Grooming
+    {
+      name: 'Royal Groom Beard Sculpting & Haircut',
+      category: 'Groom Makeup',
+      description: 'Precision scissor haircut, steam hot-towel beard shaping, charcoal scalp detox & blow-dry finish for grooms.',
+      duration: 60,
+      price: 2499,
+      discountPrice: 1999,
+      images: ['https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=80'],
+      isFeatured: true,
+      status: 'Active',
+    },
+    {
+      name: 'Groom HD Skin Touchup & De-Tan Facial',
+      category: 'Groom Makeup',
+      description: 'Camera-ready matte skin touchup for groom on wedding day including de-tan, dark circle conceal & beard styling.',
+      duration: 90,
+      price: 4500,
+      discountPrice: 3499,
+      images: ['https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=800&q=80'],
+      isFeatured: true,
+      status: 'Active',
+    },
+
+    // Hair Art & Styling
+    {
+      name: 'Keratin Protein Hair Smoothing Therapy',
+      category: 'Hair Art',
+      description: 'Formaldehyde-free intense protein infusion that eliminates 95% frizz, giving silky straight manageable hair for up to 6 months.',
+      duration: 150,
+      price: 5999,
+      discountPrice: 4499,
       images: ['https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80'],
       isFeatured: true,
       status: 'Active',
     },
     {
-      name: 'Luxury Hydra Facial & Skin Glow',
-      category: 'Skin',
-      description: 'Deep pore vacuum extraction, hyaluronic acid infusion, and LED phototherapy for glowing skin.',
-      duration: 75,
-      price: 3499,
-      discountPrice: 2799,
-      images: ['https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80'],
+      name: 'Botox Hair Rejuvenation Treatment',
+      category: 'Hair Art',
+      description: 'Deep conditioning anti-aging hair repair treatment enriched with caviar oil, collagen & B5 vitamins.',
+      duration: 180,
+      price: 6999,
+      discountPrice: 5499,
+      images: ['https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?auto=format&fit=crop&w=800&q=80'],
       isFeatured: true,
       status: 'Active',
     },
     {
-      name: 'Gel Extensions & Custom Nail Art',
-      category: 'Nails',
-      description: 'Full set gel nail extensions with handcrafted 3D embellishments, French tips, and chrome foil.',
+      name: 'Global Hair Color & Balayage Art',
+      category: 'Hair Art',
+      description: 'Custom hand-painted French Balayage highlights with Olaplex bond protection and gloss shine toner.',
+      duration: 180,
+      price: 7500,
+      discountPrice: 5999,
+      images: ['https://images.unsplash.com/photo-1605497788044-5a32c7078486?auto=format&fit=crop&w=800&q=80'],
+      isFeatured: false,
+      status: 'Active',
+    },
+
+    // Nails Art
+    {
+      name: 'Gel Extensions & 3D Chrome Nail Art',
+      category: 'Nail Art',
+      description: 'Full set luxury gel nail extensions with handcrafted 3D embellishments, metallic chrome foil & French tips.',
       duration: 90,
-      price: 2499,
-      discountPrice: 1999,
+      price: 2999,
+      discountPrice: 2299,
       images: ['https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80'],
       isFeatured: true,
       status: 'Active',
     },
     {
-      name: 'Volume Lash Extensions & Lift',
+      name: 'Russian Dry Manicure & Pedicure',
+      category: 'Nail Art',
+      description: 'E-file precision cuticle care with organic foot soak, callus scrubbing & long-wear gel polish finish.',
+      duration: 75,
+      price: 1999,
+      discountPrice: 1599,
+      images: ['https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&w=800&q=80'],
+      isFeatured: false,
+      status: 'Active',
+    },
+
+    // Skin & Facials
+    {
+      name: 'Luxury Hydra Glow Facial & LED Therapy',
+      category: 'Skin',
+      description: '6-in-1 medical grade hydro-dermabrasion with hyaluronic serum vortex infusion, cold hammer & red light phototherapy.',
+      duration: 75,
+      price: 3999,
+      discountPrice: 2999,
+      images: ['https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80'],
+      isFeatured: true,
+      status: 'Active',
+    },
+
+    // Eyelash & Eyebrow
+    {
+      name: 'Russian Volume Lash Extensions',
       category: 'Eyelashes',
-      description: 'Synthetic mink lash extensions applied individually for dramatic volume and featherweight feel.',
+      description: 'Ultra-light 3D/5D mink lash fan extensions for voluminous fluttery eyes lasting up to 4 weeks.',
       duration: 90,
-      price: 2999,
-      discountPrice: 2299,
+      price: 3499,
+      discountPrice: 2699,
       images: ['https://images.unsplash.com/photo-1583001809873-a1284a563177?auto=format&fit=crop&w=800&q=80'],
       isFeatured: true,
       status: 'Active',
@@ -142,39 +227,54 @@ export const seedDatabaseData = async () => {
   }
 
   console.log('[Seed] Creating Packages...');
-  await Package.create({
-    name: 'Royal Bridal Couture Package',
-    slug: 'royal-bridal-couture-package',
-    description: 'Complete pre-bridal and wedding day pampering including HD makeup, hair styling, skin glow & nail art.',
-    servicesIncluded: [createdServices[0]._id, createdServices[1]._id, createdServices[2]._id, createdServices[3]._id],
-    originalPrice: 25996,
-    discountPrice: 19999,
-    validityDays: 30,
-    duration: 360,
-    images: ['https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80'],
-    status: 'Active',
-    isPopular: true,
-  });
+  await Package.create([
+    {
+      name: 'Royal Bridal & Groom Luxury Combo',
+      slug: 'royal-bridal-groom-luxury-combo',
+      description: 'Ultimate wedding package for both bride and groom including HD Airbrush makeup, hair keratin, hydra facials & nail art.',
+      servicesIncluded: [createdServices[0]._id, createdServices[3]._id, createdServices[4]._id, createdServices[5]._id, createdServices[8]._id],
+      originalPrice: 34996,
+      discountPrice: 24999,
+      validityDays: 30,
+      duration: 360,
+      images: ['https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80'],
+      status: 'Active',
+      isPopular: true,
+    },
+    {
+      name: 'Festival Deluxe Pamper Package',
+      slug: 'festival-deluxe-pamper-package',
+      description: 'Complete festive glow makeover including Hydra Facial, Keratin Spa, Russian Manicure & Lash Lift.',
+      servicesIncluded: [createdServices[5]._id, createdServices[9]._id, createdServices[10]._id],
+      originalPrice: 11997,
+      discountPrice: 6999,
+      validityDays: 15,
+      duration: 210,
+      images: ['https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80'],
+      status: 'Active',
+      isPopular: true,
+    },
+  ]);
 
   console.log('[Seed] Creating Staff Roster...');
   await Staff.create([
     {
       name: 'Aarti Prajapati',
-      role: 'Master Makeup Artist & Stylist',
-      phone: '8949009360',
+      role: 'Master Makeup & Hair Artist',
+      phone: '9352769045',
       email: 'aarti@makeupwithart.com',
-      services: ['Makeup', 'Hair'],
+      services: ['Bridal Makeup', 'Groom Makeup', 'Hair Art'],
       status: 'Active',
-      photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80',
+      photo: '/logo.png',
     },
     {
-      name: 'Rohan Verma',
-      role: 'Senior Hair Technician',
-      phone: '7357496309',
-      email: 'rohan@makeupwithart.com',
-      services: ['Hair'],
+      name: 'Piyush Prajapati',
+      role: 'Senior Stylist & Creative Director',
+      phone: '7575939735',
+      email: 'piyush@makeupwithart.com',
+      services: ['Hair Art', 'Groom Makeup', 'Nail Art'],
       status: 'Active',
-      photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
+      photo: '/logo.png',
     },
   ]);
 
@@ -182,13 +282,13 @@ export const seedDatabaseData = async () => {
   await Testimonial.create([
     {
       customerName: 'Meghna Roy',
-      review: 'Aarti did my HD bridal makeup for my wedding in Jaipur. The makeup stayed flawless all night and looked divine in photos!',
+      review: 'Aarti did my HD airbrush bridal makeup for my wedding in Jaipur. The makeup stayed flawless for 24 hours and looked royal in photographs!',
       rating: 5,
       status: 'Approved',
     },
     {
-      customerName: 'Pooja Agarwal',
-      review: 'Best keratin hair spa in Shyam Nagar! My hair feels so soft and smooth. Highly professional team.',
+      customerName: 'Rahul & Neha Sharma',
+      review: 'We booked the Royal Bridal & Groom combo. Best salon in Shyam Nagar! Professional team, luxury ambience & top-tier keratin treatment.',
       rating: 5,
       status: 'Approved',
     },
@@ -196,12 +296,13 @@ export const seedDatabaseData = async () => {
 
   console.log('[Seed] Creating Gallery Portfolio...');
   await Gallery.create([
-    { title: 'HD Royal Indian Bridal Look', category: 'Makeup', imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80', isFeatured: true },
-    { title: 'Couture Keratin Hair Transformation', category: 'Hair', imageUrl: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80', isFeatured: true },
-    { title: 'Glitz & Glam French Gel Nails', category: 'Nails', imageUrl: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80', isFeatured: true },
+    { title: 'HD Royal Airbrush Bridal Makeup', category: 'Makeup', imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80', isFeatured: true },
+    { title: 'Couture Keratin Protein Smoothing', category: 'Hair', imageUrl: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80', isFeatured: true },
+    { title: '3D Chrome Gel Nail Art Extensions', category: 'Nails', imageUrl: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80', isFeatured: true },
+    { title: 'Royal Groom Beard Sculpting & Styling', category: 'Hair', imageUrl: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=80', isFeatured: true },
   ]);
 
-  console.log('[Seed] Database populated successfully!');
+  console.log('[Seed] Comprehensive demo data populated successfully!');
   return true;
 };
 

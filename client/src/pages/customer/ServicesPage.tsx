@@ -19,7 +19,7 @@ export const ServicesPage: React.FC = () => {
   const [selectedService, setSelectedService] = useState<IService | null>(null);
   const [bookingModalOpen, setBookingModalOpen] = useState<boolean>(false);
 
-  const categories = ['All', 'Hair', 'Skin', 'Makeup', 'Nails', 'Eyelash', 'Other'];
+  const categories = ['All', 'Bridal Makeup', 'Groom Makeup', 'Hair Art', 'Nail Art', 'Skin', 'Eyelashes', 'Other'];
 
   const fetchServices = async () => {
     setLoading(true);

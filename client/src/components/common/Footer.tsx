@@ -28,9 +28,11 @@ export const Footer: React.FC = () => {
           {/* Brand Info */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-salon-gold-dark via-salon-gold to-salon-gold-light flex items-center justify-center text-salon-dark font-bold shadow-lg shadow-salon-gold/20">
-                <Scissors className="w-5 h-5" />
-              </div>
+              <img
+                src="/logo.png"
+                alt="MAKEUP WITH ART"
+                className="w-10 h-10 object-contain rounded-full border border-salon-gold/50 shadow-lg bg-salon-dark p-0.5"
+              />
               <div>
                 <span className="font-serif text-xl font-bold tracking-wider text-gold-gradient uppercase block">
                   MAKEUP WITH ART
@@ -104,9 +106,9 @@ export const Footer: React.FC = () => {
               Salon Specialties
             </h4>
             <ul className="space-y-2 text-xs text-salon-cream/80">
-              <li>Hair Cut & Styling</li>
-              <li>Keratin & Hair Botox Spa</li>
+              <li>Hair Art & Keratin Spa</li>
               <li>HD Airbrush Bridal Makeup</li>
+              <li>Groom Makeup & Grooming</li>
               <li>Hydra-Glow Facial Therapy</li>
               <li>Gel Nail Extension & Art</li>
               <li>Russian Volume Eyelashes</li>
@@ -127,8 +129,8 @@ export const Footer: React.FC = () => {
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-salon-gold shrink-0" />
                 <div className="flex flex-col">
-                  <span>+91 8949009360</span>
-                  <span>+91 7357496309</span>
+                  <span>+91 9352769045</span>
+                  <span>+91 7575939735</span>
                 </div>
               </div>
 
@@ -139,7 +141,7 @@ export const Footer: React.FC = () => {
 
               <div className="flex items-center gap-2.5 pt-1">
                 <Clock className="w-4 h-4 text-salon-gold shrink-0" />
-                <span>Open Daily: 9:30 AM – 8:30 PM</span>
+                <span>Open Daily: 10:30 AM – 9:30 PM</span>
               </div>
             </div>
           </div>

@@ -49,9 +49,11 @@ export const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = 
       <div className="p-5 space-y-6 overflow-y-auto">
         {/* Logo */}
         <div className="flex items-center gap-3 pb-4 border-b border-salon-border/60">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-salon-gold-dark via-salon-gold to-salon-gold-light flex items-center justify-center text-salon-dark font-bold">
-            <Scissors className="w-5 h-5" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="MWA ADMIN"
+            className="w-9 h-9 object-contain rounded-full border border-salon-gold/50 bg-salon-dark p-0.5"
+          />
           <div>
             <h3 className="font-serif text-sm font-bold text-salon-cream uppercase tracking-wider">
               MWA ADMIN

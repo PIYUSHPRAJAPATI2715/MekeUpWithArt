@@ -67,8 +67,8 @@ export const ContactPage: React.FC = () => {
                 <Phone className="w-5 h-5 text-salon-gold shrink-0 mt-0.5" />
                 <div>
                   <h5 className="font-bold text-salon-cream text-sm">Phone Numbers</h5>
-                  <p className="text-salon-muted mt-0.5">+91 8949009360</p>
-                  <p className="text-salon-muted">+91 7357496309</p>
+                  <p className="text-salon-muted mt-0.5">+91 9352769045</p>
+                  <p className="text-salon-muted">+91 7575939735</p>
                 </div>
               </div>
 

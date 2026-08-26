@@ -9,7 +9,7 @@ export interface IServiceVariant {
 export interface IService extends Document {
   name: string;
   slug: string;
-  category: 'Hair' | 'Skin' | 'Makeup' | 'Nails' | 'Eyelash' | 'Other';
+  category: string;
   description: string;
   shortDescription: string;
   price: number;
@@ -32,8 +32,8 @@ const ServiceSchema = new Schema<IService>(
     category: {
       type: String,
       required: true,
-      enum: ['Hair', 'Skin', 'Makeup', 'Nails', 'Eyelash', 'Other'],
-      default: 'Hair',
+      enum: ['Bridal Makeup', 'Groom Makeup', 'Hair Art', 'Nail Art', 'Skin', 'Eyelashes', 'Hair', 'Makeup', 'Nails', 'Eyelash', 'Other'],
+      default: 'Bridal Makeup',
     },
     description: { type: String, required: true },
     shortDescription: { type: String, required: true },

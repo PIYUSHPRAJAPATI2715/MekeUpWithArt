@@ -18,7 +18,7 @@ export const AdminServicesPage: React.FC = () => {
 
   // Form State
   const [name, setName] = useState('');
-  const [category, setCategory] = useState<'Hair' | 'Skin' | 'Makeup' | 'Nails' | 'Eyelash' | 'Other'>('Hair');
+  const [category, setCategory] = useState<string>('Bridal Makeup');
   const [description, setDescription] = useState('');
   const [shortDescription, setShortDescription] = useState('');
   const [price, setPrice] = useState<number>(500);
@@ -233,11 +233,12 @@ export const AdminServicesPage: React.FC = () => {
                     onChange={(e: any) => setCategory(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl bg-salon-dark border border-salon-border text-salon-cream"
                   >
-                    <option value="Hair">Hair</option>
+                    <option value="Bridal Makeup">Bridal Makeup</option>
+                    <option value="Groom Makeup">Groom Makeup</option>
+                    <option value="Hair Art">Hair Art</option>
+                    <option value="Nail Art">Nail Art</option>
                     <option value="Skin">Skin</option>
-                    <option value="Makeup">Makeup</option>
-                    <option value="Nails">Nails</option>
-                    <option value="Eyelash">Eyelash</option>
+                    <option value="Eyelashes">Eyelashes</option>
                     <option value="Other">Other</option>
                   </select>
                 </div>
