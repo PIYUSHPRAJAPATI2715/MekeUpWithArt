@@ -4,6 +4,7 @@ exports.deleteGalleryItem = exports.createGalleryItem = exports.getGallery = voi
 const Gallery_1 = require("../models/Gallery");
 const getGallery = async (req, res) => {
     try {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         const { category } = req.query;
         const query = {};
         if (category && category !== 'All') {
@@ -33,7 +34,9 @@ const createGalleryItem = async (req, res) => {
 exports.createGalleryItem = createGalleryItem;
 const deleteGalleryItem = async (req, res) => {
     try {
-        await Gallery_1.Gallery.findByIdAndDelete(req.params.id);
+        const item = await Gallery_1.Gallery.findByIdAndDelete(req.params.id);
+        if (!item)
+            return res.status(404).json({ success: false, message: 'Gallery item not found' });
         res.json({ success: true, message: 'Gallery item deleted' });
     }
     catch (error) {

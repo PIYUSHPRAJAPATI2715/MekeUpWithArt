@@ -15,13 +15,15 @@ const getAvailableSlotsForDate = async (dateStr, itemDurationMinutes = 30) => {
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dayName = daysOfWeek[dateObj.getDay()];
     const workingHour = await WorkingHours_1.WorkingHours.findOne({ day: dayName });
-    if (!workingHour || !workingHour.isOpen) {
+    if (workingHour && !workingHour.isOpen) {
         return [];
     }
-    const openMinutes = timeToMinutes(workingHour.openTime || '09:00');
-    const closeMinutes = timeToMinutes(workingHour.closeTime || '20:30');
-    const breakStartMinutes = workingHour.breakStart ? timeToMinutes(workingHour.breakStart) : -1;
-    const breakEndMinutes = workingHour.breakEnd ? timeToMinutes(workingHour.breakEnd) : -1;
+    const openTime = workingHour?.openTime || '10:30';
+    const closeTime = workingHour?.closeTime || '21:30';
+    const openMinutes = timeToMinutes(openTime);
+    const closeMinutes = timeToMinutes(closeTime);
+    const breakStartMinutes = workingHour?.breakStart ? timeToMinutes(workingHour.breakStart) : -1;
+    const breakEndMinutes = workingHour?.breakEnd ? timeToMinutes(workingHour.breakEnd) : -1;
     // Fetch all active bookings on that date
     const existingBookings = await Booking_1.Booking.find({
         date: dateStr,
@@ -39,39 +41,62 @@ const getAvailableSlotsForDate = async (dateStr, itemDurationMinutes = 30) => {
                 overlapsBreak = true;
             }
         }
-        if (overlapsBreak) {
-            slots.push({ time: timeStr, available: false, reason: 'Break Time' });
-            continue;
-        }
-        // Check overlap with existing bookings
-        let isBooked = false;
+        // Check if slot overlaps with existing booking
+        let overlapsBooking = false;
         for (const b of existingBookings) {
             const bStart = timeToMinutes(b.timeSlot);
             const bEnd = bStart + (b.duration || 30);
-            // Overlap condition
             if (current < bEnd && slotEnd > bStart) {
-                isBooked = true;
+                overlapsBooking = true;
                 break;
             }
         }
-        if (isBooked) {
-            slots.push({ time: timeStr, available: false, reason: 'Already Booked' });
-        }
-        else {
-            slots.push({ time: timeStr, available: true });
-        }
+        const isAvailable = !overlapsBreak && !overlapsBooking;
+        slots.push({
+            time: format12Hour(timeStr),
+            available: isAvailable,
+            reason: overlapsBreak ? 'Break Time' : overlapsBooking ? 'Already Booked' : undefined,
+        });
     }
     return slots;
 };
 exports.getAvailableSlotsForDate = getAvailableSlotsForDate;
-function timeToMinutes(timeStr) {
-    const [h, m] = timeStr.split(':').map(Number);
-    return h * 60 + m;
-}
-function minutesToTime(totalMinutes) {
-    const h = Math.floor(totalMinutes / 60);
-    const m = totalMinutes % 60;
-    const hh = h < 10 ? `0${h}` : `${h}`;
-    const mm = m < 10 ? `0${m}` : `${m}`;
-    return `${hh}:${mm}`;
-}
+const timeToMinutes = (timeStr) => {
+    if (!timeStr)
+        return 630; // 10:30 default
+    const clean = timeStr.trim().toLowerCase();
+    let hours = 0;
+    let minutes = 0;
+    if (clean.includes('am') || clean.includes('pm')) {
+        const isPM = clean.includes('pm');
+        const timePart = clean.replace(/am|pm/g, '').trim();
+        const parts = timePart.split(':');
+        hours = parseInt(parts[0], 10);
+        minutes = parts[1] ? parseInt(parts[1], 10) : 0;
+        if (isPM && hours < 12)
+            hours += 12;
+        if (!isPM && hours === 12)
+            hours = 0;
+    }
+    else {
+        const parts = clean.split(':');
+        hours = parseInt(parts[0], 10);
+        minutes = parts[1] ? parseInt(parts[1], 10) : 0;
+    }
+    return hours * 60 + minutes;
+};
+const minutesToTime = (totalMinutes) => {
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    const padH = hours < 10 ? `0${hours}` : `${hours}`;
+    const padM = minutes < 10 ? `0${minutes}` : `${minutes}`;
+    return `${padH}:${padM}`;
+};
+const format12Hour = (time24) => {
+    const [h, m] = time24.split(':').map(Number);
+    const period = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    const padH = h12 < 10 ? `0${h12}` : `${h12}`;
+    const padM = m < 10 ? `0${m}` : `${m}`;
+    return `${padH}:${padM} ${period}`;
+};

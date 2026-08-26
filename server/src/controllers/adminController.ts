@@ -11,6 +11,7 @@ import { AuthRequest } from '../middlewares/authMiddleware';
 
 export const getDashboardStats = async (req: AuthRequest, res: Response) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     const todayStr = new Date().toISOString().split('T')[0];
 
     const [

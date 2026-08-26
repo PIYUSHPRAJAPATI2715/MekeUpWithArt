@@ -4,7 +4,8 @@ import { AuthRequest } from '../middlewares/authMiddleware';
 
 export const getStaffMembers = async (req: Request, res: Response) => {
   try {
-    const staff = await Staff.find({ isActive: true }).populate('servicesHandled', 'name category');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    const staff = await Staff.find({ status: 'Active' });
     res.json({ success: true, data: staff });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -13,7 +14,8 @@ export const getStaffMembers = async (req: Request, res: Response) => {
 
 export const getAllStaffAdmin = async (req: AuthRequest, res: Response) => {
   try {
-    const staff = await Staff.find().populate('servicesHandled', 'name category');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    const staff = await Staff.find();
     res.json({ success: true, data: staff });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -41,8 +43,9 @@ export const updateStaff = async (req: AuthRequest, res: Response) => {
 
 export const deleteStaff = async (req: AuthRequest, res: Response) => {
   try {
-    await Staff.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: 'Staff member removed' });
+    const staff = await Staff.findByIdAndDelete(req.params.id);
+    if (!staff) return res.status(404).json({ success: false, message: 'Staff member not found' });
+    res.json({ success: true, message: 'Staff member deleted' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }

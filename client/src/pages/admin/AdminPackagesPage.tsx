@@ -37,8 +37,8 @@ export const AdminPackagesPage: React.FC = () => {
     setLoading(true);
     try {
       const [resPkg, resSvc] = await Promise.all([
-        packageApi.getAll({ status: 'All' }),
-        serviceApi.getAll({ status: 'Active' }),
+        packageApi.getAll({ status: 'Active', _t: Date.now() }),
+        serviceApi.getAll({ status: 'Active', _t: Date.now() }),
       ]);
       if (resPkg.data.success) setPackages(resPkg.data.data);
       if (resSvc.data.success) setServicesList(resSvc.data.data);

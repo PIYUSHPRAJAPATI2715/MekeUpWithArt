@@ -129,6 +129,7 @@ const getMyBookings = async (req, res) => {
 exports.getMyBookings = getMyBookings;
 const getAllBookings = async (req, res) => {
     try {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         const { status, date, search, page = 1, limit = 50 } = req.query;
         const query = {};
         if (status && status !== 'All') {

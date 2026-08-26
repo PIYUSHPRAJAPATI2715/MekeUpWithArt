@@ -4,6 +4,7 @@ import { AuthRequest } from '../middlewares/authMiddleware';
 
 export const getTestimonials = async (req: Request, res: Response) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     const testimonials = await Testimonial.find({ status: 'Approved' }).sort({ createdAt: -1 });
     res.json({ success: true, data: testimonials });
   } catch (error: any) {
@@ -13,6 +14,7 @@ export const getTestimonials = async (req: Request, res: Response) => {
 
 export const getAllTestimonialsAdmin = async (req: AuthRequest, res: Response) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     const list = await Testimonial.find().sort({ createdAt: -1 });
     res.json({ success: true, data: list });
   } catch (error: any) {
@@ -50,7 +52,8 @@ export const toggleTestimonialStatus = async (req: AuthRequest, res: Response) =
 
 export const deleteTestimonial = async (req: AuthRequest, res: Response) => {
   try {
-    await Testimonial.findByIdAndDelete(req.params.id);
+    const item = await Testimonial.findByIdAndDelete(req.params.id);
+    if (!item) return res.status(404).json({ success: false, message: 'Testimonial not found' });
     res.json({ success: true, message: 'Testimonial deleted' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

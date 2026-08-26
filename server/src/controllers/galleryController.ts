@@ -4,6 +4,7 @@ import { AuthRequest } from '../middlewares/authMiddleware';
 
 export const getGallery = async (req: Request, res: Response) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     const { category } = req.query;
     const query: any = {};
     if (category && category !== 'All') {
@@ -33,7 +34,8 @@ export const createGalleryItem = async (req: AuthRequest, res: Response) => {
 
 export const deleteGalleryItem = async (req: AuthRequest, res: Response) => {
   try {
-    await Gallery.findByIdAndDelete(req.params.id);
+    const item = await Gallery.findByIdAndDelete(req.params.id);
+    if (!item) return res.status(404).json({ success: false, message: 'Gallery item not found' });
     res.json({ success: true, message: 'Gallery item deleted' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

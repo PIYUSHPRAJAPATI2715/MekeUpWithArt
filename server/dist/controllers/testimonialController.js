@@ -4,6 +4,7 @@ exports.deleteTestimonial = exports.toggleTestimonialStatus = exports.createTest
 const Testimonial_1 = require("../models/Testimonial");
 const getTestimonials = async (req, res) => {
     try {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         const testimonials = await Testimonial_1.Testimonial.find({ status: 'Approved' }).sort({ createdAt: -1 });
         res.json({ success: true, data: testimonials });
     }
@@ -14,6 +15,7 @@ const getTestimonials = async (req, res) => {
 exports.getTestimonials = getTestimonials;
 const getAllTestimonialsAdmin = async (req, res) => {
     try {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         const list = await Testimonial_1.Testimonial.find().sort({ createdAt: -1 });
         res.json({ success: true, data: list });
     }
@@ -52,7 +54,9 @@ const toggleTestimonialStatus = async (req, res) => {
 exports.toggleTestimonialStatus = toggleTestimonialStatus;
 const deleteTestimonial = async (req, res) => {
     try {
-        await Testimonial_1.Testimonial.findByIdAndDelete(req.params.id);
+        const item = await Testimonial_1.Testimonial.findByIdAndDelete(req.params.id);
+        if (!item)
+            return res.status(404).json({ success: false, message: 'Testimonial not found' });
         res.json({ success: true, message: 'Testimonial deleted' });
     }
     catch (error) {

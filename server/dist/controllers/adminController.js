@@ -11,6 +11,7 @@ const Holiday_1 = require("../models/Holiday");
 const AuditLog_1 = require("../models/AuditLog");
 const getDashboardStats = async (req, res) => {
     try {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         const todayStr = new Date().toISOString().split('T')[0];
         const [totalUsers, totalBookings, todaysBookings, pendingBookings, confirmedBookings, completedBookings, cancelledBookings, totalServices, totalPackages, recentBookings, completedList,] = await Promise.all([
             User_1.User.countDocuments({ role: 'CUSTOMER' }),

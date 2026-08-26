@@ -4,7 +4,8 @@ exports.deleteStaff = exports.updateStaff = exports.createStaff = exports.getAll
 const Staff_1 = require("../models/Staff");
 const getStaffMembers = async (req, res) => {
     try {
-        const staff = await Staff_1.Staff.find({ isActive: true }).populate('servicesHandled', 'name category');
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        const staff = await Staff_1.Staff.find({ status: 'Active' });
         res.json({ success: true, data: staff });
     }
     catch (error) {
@@ -14,7 +15,8 @@ const getStaffMembers = async (req, res) => {
 exports.getStaffMembers = getStaffMembers;
 const getAllStaffAdmin = async (req, res) => {
     try {
-        const staff = await Staff_1.Staff.find().populate('servicesHandled', 'name category');
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        const staff = await Staff_1.Staff.find();
         res.json({ success: true, data: staff });
     }
     catch (error) {
@@ -46,8 +48,10 @@ const updateStaff = async (req, res) => {
 exports.updateStaff = updateStaff;
 const deleteStaff = async (req, res) => {
     try {
-        await Staff_1.Staff.findByIdAndDelete(req.params.id);
-        res.json({ success: true, message: 'Staff member removed' });
+        const staff = await Staff_1.Staff.findByIdAndDelete(req.params.id);
+        if (!staff)
+            return res.status(404).json({ success: false, message: 'Staff member not found' });
+        res.json({ success: true, message: 'Staff member deleted' });
     }
     catch (error) {
         res.status(500).json({ success: false, message: error.message });
