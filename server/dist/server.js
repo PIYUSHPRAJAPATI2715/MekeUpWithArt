@@ -69,21 +69,22 @@ app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
 // Static uploads folder
 app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../uploads')));
-// Health Check
+// Health Check & Version
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'online',
+        version: '3.0.0-fresh-deploy',
         business: 'MAKEUP WITH ART',
         timestamp: new Date().toISOString(),
     });
 });
-// Seed Endpoint (Available at both /seed and /api/seed)
+// Seed Endpoint
 const handleSeed = async (req, res) => {
     try {
         await (0, seed_1.seedDatabaseData)();
         res.json({
             success: true,
-            message: 'MongoDB Atlas populated with admin (admin@makeupwithart.com / Admin@123456), services, packages, and gallery items!',
+            message: 'MongoDB Atlas populated with admin, services, packages, and gallery items!',
         });
     }
     catch (err) {
@@ -111,7 +112,7 @@ app.use(errorHandler_1.errorHandler);
 const PORT = env_1.config.PORT;
 app.listen(PORT, () => {
     console.log(`\n==================================================`);
-    console.log(`  MAKEUP WITH ART - Backend Server Active`);
+    console.log(`  MAKEUP WITH ART - Backend Server Active v3.0.0`);
     console.log(`  Environment: ${env_1.config.NODE_ENV}`);
     console.log(`  Listening on: http://localhost:${PORT}`);
     console.log(`==================================================\n`);

@@ -6,6 +6,8 @@ import { seedDatabaseData } from '../utils/seed';
 
 export const getServices = async (req: Request, res: Response) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+
     const serviceCount = await Service.countDocuments();
     if (serviceCount === 0) {
       console.log('[Services] Empty database detected. Auto-seeding catalog...');
@@ -70,6 +72,7 @@ export const getServices = async (req: Request, res: Response) => {
 
 export const getServiceBySlug = async (req: Request, res: Response) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     const service = await Service.findOne({ slug: req.params.slug });
     if (!service) {
       return res.status(404).json({ success: false, message: 'Service not found' });
@@ -95,6 +98,7 @@ export const createService = async (req: AuthRequest, res: Response) => {
       slug,
       category,
       description,
+      shortDescription: description.substring(0, 100),
       duration,
       price,
       discountPrice,

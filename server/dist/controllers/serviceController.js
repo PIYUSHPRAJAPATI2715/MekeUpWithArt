@@ -6,6 +6,7 @@ const slugify_1 = require("../utils/slugify");
 const seed_1 = require("../utils/seed");
 const getServices = async (req, res) => {
     try {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         const serviceCount = await Service_1.Service.countDocuments();
         if (serviceCount === 0) {
             console.log('[Services] Empty database detected. Auto-seeding catalog...');
@@ -66,6 +67,7 @@ const getServices = async (req, res) => {
 exports.getServices = getServices;
 const getServiceBySlug = async (req, res) => {
     try {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         const service = await Service_1.Service.findOne({ slug: req.params.slug });
         if (!service) {
             return res.status(404).json({ success: false, message: 'Service not found' });
@@ -89,6 +91,7 @@ const createService = async (req, res) => {
             slug,
             category,
             description,
+            shortDescription: description.substring(0, 100),
             duration,
             price,
             discountPrice,

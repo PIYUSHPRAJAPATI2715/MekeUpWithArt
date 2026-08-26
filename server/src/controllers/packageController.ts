@@ -6,6 +6,8 @@ import { seedDatabaseData } from '../utils/seed';
 
 export const getPackages = async (req: Request, res: Response) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+
     const packageCount = await Package.countDocuments();
     if (packageCount === 0) {
       console.log('[Packages] Empty packages catalog. Auto-seeding catalog...');
@@ -40,6 +42,7 @@ export const getPackages = async (req: Request, res: Response) => {
 
 export const getPackageBySlug = async (req: Request, res: Response) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     const pkg = await Package.findOne({ slug: req.params.slug }).populate('servicesIncluded');
     if (!pkg) {
       return res.status(404).json({ success: false, message: 'Package not found' });

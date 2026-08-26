@@ -6,6 +6,7 @@ const slugify_1 = require("../utils/slugify");
 const seed_1 = require("../utils/seed");
 const getPackages = async (req, res) => {
     try {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         const packageCount = await Package_1.Package.countDocuments();
         if (packageCount === 0) {
             console.log('[Packages] Empty packages catalog. Auto-seeding catalog...');
@@ -37,6 +38,7 @@ const getPackages = async (req, res) => {
 exports.getPackages = getPackages;
 const getPackageBySlug = async (req, res) => {
     try {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         const pkg = await Package_1.Package.findOne({ slug: req.params.slug }).populate('servicesIncluded');
         if (!pkg) {
             return res.status(404).json({ success: false, message: 'Package not found' });
