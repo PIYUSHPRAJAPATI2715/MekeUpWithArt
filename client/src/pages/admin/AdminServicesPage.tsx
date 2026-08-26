@@ -35,7 +35,7 @@ export const AdminServicesPage: React.FC = () => {
   const fetchServices = async () => {
     setLoading(true);
     try {
-      const res = await serviceApi.getAll({ status: 'All', _t: Date.now() });
+      const res = await serviceApi.getAll({ status: 'Active', _t: Date.now() });
       if (res.data.success) setServices(res.data.data);
     } catch (err) {
       console.error(err);
