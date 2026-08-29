@@ -8,6 +8,16 @@ import { WorkingHours } from '../models/WorkingHours';
 import { Holiday } from '../models/Holiday';
 import { AuditLog } from '../models/AuditLog';
 import { AuthRequest } from '../middlewares/authMiddleware';
+import { seedRealMenuData } from '../utils/seedRealMenu';
+
+export const seedRealMenuController = async (req: AuthRequest, res: Response) => {
+  try {
+    await seedRealMenuData();
+    res.json({ success: true, message: 'All 40+ real salon menu services populated into MongoDB Atlas!' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 export const getDashboardStats = async (req: AuthRequest, res: Response) => {
   try {

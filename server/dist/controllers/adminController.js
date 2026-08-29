@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAuditLogs = exports.deleteHoliday = exports.createHoliday = exports.getHolidays = exports.updateWorkingHours = exports.getWorkingHours = exports.updateBusinessSettings = exports.getBusinessSettings = exports.updateSettings = exports.getSettings = exports.getSettingsPublic = exports.getDashboardStats = void 0;
+exports.getAuditLogs = exports.deleteHoliday = exports.createHoliday = exports.getHolidays = exports.updateWorkingHours = exports.getWorkingHours = exports.updateBusinessSettings = exports.getBusinessSettings = exports.updateSettings = exports.getSettings = exports.getSettingsPublic = exports.getDashboardStats = exports.seedRealMenuController = void 0;
 const User_1 = require("../models/User");
 const Booking_1 = require("../models/Booking");
 const Service_1 = require("../models/Service");
@@ -9,6 +9,17 @@ const BusinessSettings_1 = require("../models/BusinessSettings");
 const WorkingHours_1 = require("../models/WorkingHours");
 const Holiday_1 = require("../models/Holiday");
 const AuditLog_1 = require("../models/AuditLog");
+const seedRealMenu_1 = require("../utils/seedRealMenu");
+const seedRealMenuController = async (req, res) => {
+    try {
+        await (0, seedRealMenu_1.seedRealMenuData)();
+        res.json({ success: true, message: 'All 40+ real salon menu services populated into MongoDB Atlas!' });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+exports.seedRealMenuController = seedRealMenuController;
 const getDashboardStats = async (req, res) => {
     try {
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');

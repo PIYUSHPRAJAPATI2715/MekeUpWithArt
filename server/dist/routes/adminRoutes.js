@@ -20,4 +20,5 @@ router.get('/holidays', adminController_1.getHolidays);
 router.post('/holidays', adminController_1.createHoliday);
 router.delete('/holidays/:id', adminController_1.deleteHoliday);
 router.get('/audit-logs', adminController_1.getAuditLogs);
+router.post('/seed-menu', adminController_1.seedRealMenuController);
 exports.default = router;

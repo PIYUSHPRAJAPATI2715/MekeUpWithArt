@@ -9,6 +9,7 @@ import {
   createHoliday,
   deleteHoliday,
   getAuditLogs,
+  seedRealMenuController,
 } from '../controllers/adminController';
 import { protect } from '../middlewares/authMiddleware';
 import { authorize } from '../middlewares/roleMiddleware';
@@ -32,5 +33,6 @@ router.post('/holidays', createHoliday);
 router.delete('/holidays/:id', deleteHoliday);
 
 router.get('/audit-logs', getAuditLogs);
+router.post('/seed-menu', seedRealMenuController);
 
 export default router;
