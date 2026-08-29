@@ -129,6 +129,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         setConfirmedBooking(res.data.data);
         setStep('success');
         showToast('Appointment booked successfully!', 'success');
+
+        // Trigger Google Ads Lead Conversion Event
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+          (window as any).gtag('event', 'conversion', {
+            send_to: 'AW-18398292781/ggbkCOudhOocEK3W_sRE',
+          });
+        }
       }
     } catch (err: any) {
       showToast(err.response?.data?.message || 'Failed to complete booking', 'error');
