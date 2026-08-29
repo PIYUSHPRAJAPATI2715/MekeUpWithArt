@@ -233,11 +233,11 @@ export const AdminServicesPage: React.FC = () => {
                     onChange={(e: any) => setCategory(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl bg-salon-dark border border-salon-border text-salon-cream"
                   >
-                    <option value="Bridal Makeup">Bridal Makeup</option>
-                    <option value="Groom Makeup">Groom Makeup</option>
-                    <option value="Hair Art">Hair Art</option>
+                    <option value="Bridal & Makeup">Bridal & Makeup</option>
+                    <option value="Groom / Man">Groom / Man</option>
+                    <option value="Facials & Skin">Facials & Skin</option>
+                    <option value="Waxing">Waxing</option>
                     <option value="Nail Art">Nail Art</option>
-                    <option value="Skin">Skin</option>
                     <option value="Eyelashes">Eyelashes</option>
                     <option value="Other">Other</option>
                   </select>
