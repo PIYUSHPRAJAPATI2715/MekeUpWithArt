@@ -52,15 +52,20 @@ export const AdminBroadcastPage: React.FC = () => {
   const fetchBroadcastData = async () => {
     setLoading(true);
     try {
-      const [listRes, statsRes] = await Promise.all([
+      const [listRes, statsRes] = await Promise.allSettled([
         broadcastApi.getAll(),
         broadcastApi.getAudienceStats(),
       ]);
-      if (listRes.data.success) setBroadcasts(listRes.data.data);
-      if (statsRes.data.success) setStats(statsRes.data.data);
+
+      if (listRes.status === 'fulfilled' && listRes.value.data.success) {
+        setBroadcasts(listRes.value.data.data);
+      }
+
+      if (statsRes.status === 'fulfilled' && statsRes.value.data.success) {
+        setStats(statsRes.value.data.data);
+      }
     } catch (err: any) {
       console.error(err);
-      showToast('Failed to load broadcasts', 'error');
     } finally {
       setLoading(false);
     }
