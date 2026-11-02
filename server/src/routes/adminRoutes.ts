@@ -11,6 +11,7 @@ import {
   getAuditLogs,
   seedRealMenuController,
 } from '../controllers/adminController';
+import { deleteUser } from '../controllers/userController';
 import { protect } from '../middlewares/authMiddleware';
 import { authorize } from '../middlewares/roleMiddleware';
 
@@ -34,5 +35,6 @@ router.delete('/holidays/:id', deleteHoliday);
 
 router.get('/audit-logs', getAuditLogs);
 router.post('/seed-menu', seedRealMenuController);
+router.delete('/users/:id', deleteUser);
 
 export default router;

@@ -13,6 +13,8 @@ import {
   Mail,
   RefreshCw,
   UserPlus,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 
 export const AdminUsersPage: React.FC = () => {
@@ -30,6 +32,11 @@ export const AdminUsersPage: React.FC = () => {
   const [password, setPassword] = useState('Customer@123');
   const [role, setRole] = useState<'CUSTOMER' | 'ADMIN'>('CUSTOMER');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Delete Customer State
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<IUser | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -112,6 +119,40 @@ export const AdminUsersPage: React.FC = () => {
       showToast(err.response?.data?.message || 'Failed to create customer', 'error');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteUserClick = (u: IUser) => {
+    setUserToDelete(u);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+    setIsDeleting(true);
+    try {
+      const targetId = userToDelete._id || userToDelete.id || '';
+      let res;
+      try {
+        res = await userApi.delete(targetId);
+      } catch (err: any) {
+        if (err.response?.status === 404) {
+          res = await userApi.deleteAdmin(targetId);
+        } else {
+          throw err;
+        }
+      }
+
+      if (res?.data?.success) {
+        showToast(res.data.message || `Customer ${userToDelete.name} deleted successfully`, 'success');
+        setDeleteModalOpen(false);
+        setUserToDelete(null);
+        fetchUsers();
+      }
+    } catch (err: any) {
+      showToast(err.response?.data?.message || 'Failed to delete customer', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -256,16 +297,26 @@ export const AdminUsersPage: React.FC = () => {
 
                   <td className="p-4 text-right">
                     {u.role !== 'SUPER_ADMIN' && (
-                      <button
-                        onClick={() => handleToggleStatus(u._id)}
-                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                          u.isActive
-                            ? 'bg-rose-500/20 text-rose-300 hover:bg-rose-500 hover:text-white'
-                            : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-black'
-                        }`}
-                      >
-                        {u.isActive ? 'Disable Account' : 'Enable Account'}
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleToggleStatus(u._id)}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                            u.isActive
+                              ? 'bg-amber-500/10 text-amber-300 hover:bg-amber-500 hover:text-black border border-amber-500/20'
+                              : 'bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500 hover:text-black border border-emerald-500/20'
+                          }`}
+                        >
+                          {u.isActive ? 'Disable' : 'Enable'}
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteUserClick(u)}
+                          className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-500/20 transition-all"
+                          title="Delete Customer Profile"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>
@@ -380,6 +431,73 @@ export const AdminUsersPage: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Customer Confirmation Modal */}
+      {deleteModalOpen && userToDelete && (
+        <div className="fixed inset-0 z-[9995] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+          <div className="relative w-full max-w-md p-6 rounded-3xl glass-panel border border-rose-500/40 shadow-2xl space-y-4 my-8">
+            <div className="flex items-center gap-3 text-rose-400 border-b border-salon-border/60 pb-3">
+              <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20">
+                <AlertTriangle className="w-6 h-6 text-rose-400" />
+              </div>
+              <div>
+                <h3 className="font-serif text-lg font-bold text-salon-cream">
+                  Delete Customer Account?
+                </h3>
+                <p className="text-[11px] text-salon-muted">
+                  This action is permanent and cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-salon-dark/80 border border-salon-border space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-salon-muted">Name:</span>
+                <span className="font-bold text-salon-cream">{userToDelete.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-salon-muted">Phone:</span>
+                <span className="font-mono text-salon-gold">{userToDelete.phone || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-salon-muted">Email:</span>
+                <span className="text-salon-cream truncate max-w-[200px]">{userToDelete.email}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-salon-muted">Role:</span>
+                <span className="text-salon-muted">{userToDelete.role}</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-rose-300/80 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20 leading-relaxed">
+              ⚠️ Warning: Deleting this profile will remove the customer's login access and associated profile data from the salon system.
+            </p>
+
+            <div className="pt-3 flex justify-end gap-3 border-t border-salon-border">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setUserToDelete(null);
+                }}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-xl bg-salon-dark text-salon-muted hover:text-salon-cream font-semibold text-xs"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-wider disabled:opacity-50 transition-all flex items-center gap-2"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                {isDeleting ? 'Deleting...' : 'Yes, Delete Customer'}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createUserByAdmin = exports.toggleUserStatus = exports.getUserById = exports.getUsers = void 0;
+exports.deleteUser = exports.createUserByAdmin = exports.toggleUserStatus = exports.getUserById = exports.getUsers = void 0;
 const User_1 = require("../models/User");
 const Booking_1 = require("../models/Booking");
 const AuditLog_1 = require("../models/AuditLog");
@@ -139,3 +139,34 @@ const createUserByAdmin = async (req, res) => {
     }
 };
 exports.createUserByAdmin = createUserByAdmin;
+const deleteUser = async (req, res) => {
+    try {
+        const user = await User_1.User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Customer account not found' });
+        }
+        if (user.role === 'SUPER_ADMIN') {
+            return res.status(403).json({ success: false, message: 'Super Admin account cannot be deleted' });
+        }
+        if (req.user && req.user._id.toString() === user._id.toString()) {
+            return res.status(400).json({ success: false, message: 'You cannot delete your own logged-in admin account' });
+        }
+        await User_1.User.findByIdAndDelete(req.params.id);
+        await AuditLog_1.AuditLog.create({
+            admin: req.user?._id,
+            adminEmail: req.user?.email || '',
+            action: 'DELETE_USER',
+            entity: 'User',
+            entityId: user._id.toString(),
+            details: `Admin deleted customer profile for ${user.name} (${user.email || user.phone})`,
+        });
+        res.json({
+            success: true,
+            message: `Customer ${user.name} deleted successfully`,
+        });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+exports.deleteUser = deleteUser;

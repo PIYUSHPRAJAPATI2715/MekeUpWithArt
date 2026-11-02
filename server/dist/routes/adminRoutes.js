@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const adminController_1 = require("../controllers/adminController");
+const userController_1 = require("../controllers/userController");
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const roleMiddleware_1 = require("../middlewares/roleMiddleware");
 const router = express_1.default.Router();
@@ -21,4 +22,5 @@ router.post('/holidays', adminController_1.createHoliday);
 router.delete('/holidays/:id', adminController_1.deleteHoliday);
 router.get('/audit-logs', adminController_1.getAuditLogs);
 router.post('/seed-menu', adminController_1.seedRealMenuController);
+router.delete('/users/:id', userController_1.deleteUser);
 exports.default = router;

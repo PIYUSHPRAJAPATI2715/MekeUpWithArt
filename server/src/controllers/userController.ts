@@ -152,3 +152,39 @@ export const createUserByAdmin = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const deleteUser = async (req: AuthRequest, res: Response) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Customer account not found' });
+    }
+
+    if (user.role === 'SUPER_ADMIN') {
+      return res.status(403).json({ success: false, message: 'Super Admin account cannot be deleted' });
+    }
+
+    if (req.user && req.user._id.toString() === user._id.toString()) {
+      return res.status(400).json({ success: false, message: 'You cannot delete your own logged-in admin account' });
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    await AuditLog.create({
+      admin: req.user?._id,
+      adminEmail: req.user?.email || '',
+      action: 'DELETE_USER',
+      entity: 'User',
+      entityId: user._id.toString(),
+      details: `Admin deleted customer profile for ${user.name} (${user.email || user.phone})`,
+    });
+
+    res.json({
+      success: true,
+      message: `Customer ${user.name} deleted successfully`,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

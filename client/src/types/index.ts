@@ -1,10 +1,13 @@
 export interface IUser {
-  id: string;
+  id?: string;
+  _id?: string;
   name: string;
   email: string;
   phone: string;
   role: 'CUSTOMER' | 'ADMIN' | 'SUPER_ADMIN';
+  isActive?: boolean;
   avatar?: string;
+  createdAt?: string;
 }
 
 export interface IServiceVariant {

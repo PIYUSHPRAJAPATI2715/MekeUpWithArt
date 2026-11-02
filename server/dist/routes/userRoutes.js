@@ -14,4 +14,5 @@ router.get('/', userController_1.getUsers);
 router.post('/', userController_1.createUserByAdmin);
 router.get('/:id', userController_1.getUserById);
 router.put('/:id/toggle-status', userController_1.toggleUserStatus);
+router.delete('/:id', userController_1.deleteUser);
 exports.default = router;

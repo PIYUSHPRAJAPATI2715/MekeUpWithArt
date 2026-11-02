@@ -90,6 +90,8 @@ export const userApi = {
   getAll: (params?: any) => api.get('/users', { params }),
   getById: (id: string) => api.get(`/users/${id}`),
   create: (data: any) => api.post('/users', data),
+  delete: (id: string) => api.delete(`/users/${id}`),
+  deleteAdmin: (id: string) => api.delete(`/admin/users/${id}`),
   toggleStatus: (id: string) => api.put(`/users/${id}/toggle-status`),
 };
 
