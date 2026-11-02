@@ -75,7 +75,7 @@ app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'online',
-        version: '3.0.0-fresh-deploy',
+        version: '3.2.0-manual-customers',
         business: 'MAKEUP WITH ART',
         timestamp: new Date().toISOString(),
     });
