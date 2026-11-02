@@ -17,6 +17,10 @@ import { ProfilePage } from './pages/customer/ProfilePage';
 import { ContactPage } from './pages/customer/ContactPage';
 import { AboutPage } from './pages/customer/AboutPage';
 import { GalleryPage } from './pages/customer/GalleryPage';
+import { FaqPage } from './pages/customer/FaqPage';
+import { TermsPage } from './pages/customer/TermsPage';
+import { PrivacyPage } from './pages/customer/PrivacyPage';
+import { RefundPolicyPage } from './pages/customer/RefundPolicyPage';
 
 // Admin Pages
 import { AdminLoginPage } from './pages/admin/AdminLoginPage';
@@ -29,6 +33,8 @@ import { AdminStaffPage } from './pages/admin/AdminStaffPage';
 import { AdminGalleryPage } from './pages/admin/AdminGalleryPage';
 import { AdminTestimonialsPage } from './pages/admin/AdminTestimonialsPage';
 import { AdminNotificationsPage } from './pages/admin/AdminNotificationsPage';
+import { AdminBroadcastPage } from './pages/admin/AdminBroadcastPage';
+import { AdminFaqPage } from './pages/admin/AdminFaqPage';
 import { AdminMessagesPage } from './pages/admin/AdminMessagesPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 import { AdminAuditLogsPage } from './pages/admin/AdminAuditLogsPage';
@@ -45,6 +51,13 @@ export const App: React.FC = () => {
         <Route path="packages/:slug" element={<PackageDetailPage />} />
         <Route path="gallery" element={<GalleryPage />} />
         <Route path="about" element={<AboutPage />} />
+        <Route path="faq" element={<FaqPage />} />
+        <Route path="terms-conditions" element={<TermsPage />} />
+        <Route path="terms" element={<TermsPage />} />
+        <Route path="privacy-policy" element={<PrivacyPage />} />
+        <Route path="privacy" element={<PrivacyPage />} />
+        <Route path="refund-policy" element={<RefundPolicyPage />} />
+        <Route path="cancellation-policy" element={<RefundPolicyPage />} />
         <Route path="contact" element={<ContactPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignupPage />} />
@@ -66,6 +79,8 @@ export const App: React.FC = () => {
         <Route path="gallery" element={<AdminGalleryPage />} />
         <Route path="testimonials" element={<AdminTestimonialsPage />} />
         <Route path="notifications" element={<AdminNotificationsPage />} />
+        <Route path="broadcasts" element={<AdminBroadcastPage />} />
+        <Route path="faqs" element={<AdminFaqPage />} />
         <Route path="messages" element={<AdminMessagesPage />} />
         <Route path="working-hours" element={<AdminSettingsPage />} />
         <Route path="settings" element={<AdminSettingsPage />} />

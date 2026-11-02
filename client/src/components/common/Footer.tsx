@@ -93,6 +93,11 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/faq" className="text-salon-cream/80 hover:text-salon-gold transition-colors">
+                  FAQs & Help
+                </Link>
+              </li>
+              <li>
                 <Link to="/contact" className="text-salon-cream/80 hover:text-salon-gold transition-colors">
                   Contact & Location
                 </Link>
@@ -150,12 +155,15 @@ export const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-salon-muted">
           <p>{settings?.footerNotice || '© 2026 MAKEUP WITH ART. All Rights Reserved.'}</p>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <Link to="/privacy-policy" className="hover:text-salon-gold transition-colors">
               Privacy Policy
             </Link>
             <Link to="/terms-conditions" className="hover:text-salon-gold transition-colors">
               Terms & Conditions
+            </Link>
+            <Link to="/refund-policy" className="hover:text-salon-gold transition-colors">
+              Refund & Cancellation
             </Link>
             <Link to="/admin/login" className="hover:text-salon-gold transition-colors">
               Admin Login

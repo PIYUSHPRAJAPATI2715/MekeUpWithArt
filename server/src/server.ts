@@ -22,6 +22,8 @@ import testimonialRoutes from './routes/testimonialRoutes';
 import notificationRoutes from './routes/notificationRoutes';
 import aiRoutes from './routes/aiRoutes';
 import contactRoutes from './routes/contactRoutes';
+import broadcastRoutes from './routes/broadcastRoutes';
+import faqRoutes from './routes/faqRoutes';
 
 const app = express();
 
@@ -114,6 +116,8 @@ app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/broadcasts', broadcastRoutes);
+app.use('/api/faqs', faqRoutes);
 
 // Centralized Error Handler
 app.use(errorHandler);

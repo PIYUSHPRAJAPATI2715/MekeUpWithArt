@@ -135,3 +135,27 @@ export const contactApi = {
   getAllAdmin: () => api.get('/contact/admin'),
   markRead: (id: string) => api.put(`/contact/admin/${id}/read`),
 };
+
+// WhatsApp Broadcast API
+export const broadcastApi = {
+  getAudienceStats: () => api.get('/broadcasts/audience-stats'),
+  getAll: () => api.get('/broadcasts'),
+  getById: (id: string) => api.get(`/broadcasts/${id}`),
+  send: (data: {
+    title: string;
+    message: string;
+    imageUrl?: string;
+    targetAudience?: 'ALL' | 'CUSTOMERS' | 'BOOKINGS' | 'CONTACTS' | 'CUSTOM';
+    customNumbers?: string[];
+  }) => api.post('/broadcasts/send', data),
+  delete: (id: string) => api.delete(`/broadcasts/${id}`),
+};
+
+// FAQs API
+export const faqApi = {
+  getPublic: () => api.get('/faqs'),
+  getAdmin: () => api.get('/faqs/admin'),
+  create: (data: any) => api.post('/faqs', data),
+  update: (id: string, data: any) => api.put(`/faqs/${id}`, data),
+  delete: (id: string) => api.delete(`/faqs/${id}`),
+};

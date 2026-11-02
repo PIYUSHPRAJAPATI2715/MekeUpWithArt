@@ -16,6 +16,8 @@ import {
   History,
   LogOut,
   Sparkles,
+  MessageSquare,
+  HelpCircle,
 } from 'lucide-react';
 import { useAuth } from '../../store/AuthContext';
 
@@ -34,6 +36,8 @@ export const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = 
     { name: 'Gallery', path: '/admin/gallery', icon: ImageIcon },
     { name: 'Testimonials', path: '/admin/testimonials', icon: MessageSquareQuote },
     { name: 'Notifications', path: '/admin/notifications', icon: Bell },
+    { name: 'WhatsApp Broadcast', path: '/admin/broadcasts', icon: MessageSquare },
+    { name: 'FAQ Manager', path: '/admin/faqs', icon: HelpCircle },
     { name: 'Inquiries', path: '/admin/messages', icon: Mail },
     { name: 'Working Hours', path: '/admin/working-hours', icon: Clock },
     { name: 'Settings', path: '/admin/settings', icon: Settings },

@@ -110,6 +110,41 @@ export interface INotification {
   createdAt: string;
 }
 
+export interface IFAQ {
+  _id: string;
+  question: string;
+  answer: string;
+  category: string;
+  order: number;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface IBroadcastLog {
+  phone: string;
+  name?: string;
+  status: 'SENT' | 'FAILED' | 'PENDING';
+  error?: string;
+  timestamp: string;
+}
+
+export interface IBroadcast {
+  _id: string;
+  title: string;
+  message: string;
+  imageUrl?: string;
+  targetAudience: 'ALL' | 'CUSTOMERS' | 'BOOKINGS' | 'CONTACTS' | 'CUSTOM';
+  customNumbers?: string[];
+  status: 'DRAFT' | 'SENDING' | 'COMPLETED' | 'PARTIALLY_COMPLETED' | 'FAILED';
+  recipientCount: number;
+  sentCount: number;
+  failedCount: number;
+  logs: IBroadcastLog[];
+  sentAt?: string;
+  createdAt: string;
+}
+
 export interface IBusinessSettings {
   businessName: string;
   phoneNumbers: string[];
@@ -120,8 +155,35 @@ export interface IBusinessSettings {
   heroTitle: string;
   heroSubheading: string;
   aboutContent: string;
+  aboutMission?: string;
+  aboutVision?: string;
+  stats?: {
+    happyClients: number;
+    experienceYears: number;
+    expertStylists: number;
+    rating: number;
+  };
+  announcementBanner?: {
+    enabled: boolean;
+    text: string;
+    link: string;
+  };
+  socialLinks?: {
+    instagram: string;
+    facebook: string;
+    youtube: string;
+    whatsapp: string;
+  };
+  termsAndConditions?: string;
+  privacyPolicy?: string;
+  cancellationPolicy?: string;
   whyChooseUs: { title: string; description: string }[];
   footerNotice: string;
+  whatsappConfig?: {
+    provider: 'META' | 'WAAPI' | 'WEB';
+    apiToken: string;
+    phoneNumberId: string;
+  };
 }
 
 export interface IAuditLog {

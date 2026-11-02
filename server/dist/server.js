@@ -26,6 +26,8 @@ const testimonialRoutes_1 = __importDefault(require("./routes/testimonialRoutes"
 const notificationRoutes_1 = __importDefault(require("./routes/notificationRoutes"));
 const aiRoutes_1 = __importDefault(require("./routes/aiRoutes"));
 const contactRoutes_1 = __importDefault(require("./routes/contactRoutes"));
+const broadcastRoutes_1 = __importDefault(require("./routes/broadcastRoutes"));
+const faqRoutes_1 = __importDefault(require("./routes/faqRoutes"));
 const app = (0, express_1.default)();
 // Connect Database
 (0, db_1.connectDB)();
@@ -106,6 +108,8 @@ app.use('/api/testimonials', testimonialRoutes_1.default);
 app.use('/api/notifications', notificationRoutes_1.default);
 app.use('/api/ai', aiRoutes_1.default);
 app.use('/api/contact', contactRoutes_1.default);
+app.use('/api/broadcasts', broadcastRoutes_1.default);
+app.use('/api/faqs', faqRoutes_1.default);
 // Centralized Error Handler
 app.use(errorHandler_1.errorHandler);
 // Start Server & Init WhatsApp Web Client

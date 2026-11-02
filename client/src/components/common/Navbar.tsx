@@ -14,8 +14,8 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useAuth } from '../../store/AuthContext';
-import { notificationApi } from '../../api';
-import { INotification } from '../../types';
+import { notificationApi, adminApi } from '../../api';
+import { INotification, IBusinessSettings } from '../../types';
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
@@ -29,6 +29,18 @@ export const Navbar: React.FC = () => {
 
   const [notifications, setNotifications] = useState<INotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [settings, setSettings] = useState<IBusinessSettings | null>(null);
+
+  useEffect(() => {
+    adminApi
+      .getSettingsPublic()
+      .then((res) => {
+        if (res.data.success && res.data.data) {
+          setSettings(res.data.data);
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -72,6 +84,7 @@ export const Navbar: React.FC = () => {
     { name: 'Packages', path: '/packages' },
     { name: 'Gallery', path: '/gallery' },
     { name: 'About', path: '/about' },
+    { name: 'FAQ', path: '/faq' },
     { name: 'Contact', path: '/contact' },
   ];
 
@@ -79,11 +92,26 @@ export const Navbar: React.FC = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-300 ${
         isScrolled
-          ? 'bg-salon-dark/90 backdrop-blur-md border-b border-salon-gold/20 py-3 shadow-xl'
-          : 'bg-gradient-to-b from-salon-dark/90 to-transparent py-5'
+          ? 'bg-salon-dark/95 backdrop-blur-md border-b border-salon-gold/20 shadow-xl'
+          : 'bg-gradient-to-b from-salon-dark/95 to-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      {/* Top Dynamic Announcement Banner */}
+      {settings?.announcementBanner?.enabled && (
+        <div className="bg-gradient-to-r from-amber-700 via-salon-gold to-amber-700 text-salon-dark px-4 py-1.5 text-center text-[11px] sm:text-xs font-bold tracking-wide shadow-md flex items-center justify-center gap-2">
+          <span>{settings.announcementBanner.text}</span>
+          {settings.announcementBanner.link && (
+            <Link
+              to={settings.announcementBanner.link}
+              className="underline hover:text-black font-extrabold uppercase text-[10px] ml-1 bg-salon-dark/10 px-2 py-0.5 rounded-full"
+            >
+              Learn More
+            </Link>
+          )}
+        </div>
+      )}
+
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-all duration-300 ${isScrolled ? 'py-3' : 'py-4'}`}>
         {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-3 group">
           <img
