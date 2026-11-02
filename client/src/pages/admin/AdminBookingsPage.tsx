@@ -158,21 +158,42 @@ export const AdminBookingsPage: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const res = await bookingApi.createAdmin({
-        itemType,
-        itemId: selectedItemId,
-        date,
-        timeSlot,
-        customerName: customerName.trim(),
-        customerPhone: customerPhone.trim(),
-        customerEmail: customerEmail.trim() || undefined,
-        price: price ? Number(price) : undefined,
-        staff: selectedStaffId || undefined,
-        notes: notes.trim(),
-        status,
-      });
+      let res;
+      try {
+        res = await bookingApi.createAdmin({
+          itemType,
+          itemId: selectedItemId,
+          date,
+          timeSlot,
+          customerName: customerName.trim(),
+          customerPhone: customerPhone.trim(),
+          customerEmail: customerEmail.trim() || undefined,
+          price: price ? Number(price) : undefined,
+          staff: selectedStaffId || undefined,
+          notes: notes.trim(),
+          status,
+        });
+      } catch (err: any) {
+        // Fallback to standard bookingApi.create if admin route is still deploying
+        if (err.response?.status === 404) {
+          const cleanPhone = customerPhone.replace(/\D/g, '');
+          res = await bookingApi.create({
+            itemType,
+            itemId: selectedItemId,
+            date,
+            timeSlot,
+            customerName: customerName.trim(),
+            customerPhone: cleanPhone,
+            customerEmail: customerEmail.trim() || `client_${cleanPhone}@makeupwithart.local`,
+            staff: selectedStaffId || undefined,
+            notes: notes.trim(),
+          });
+        } else {
+          throw err;
+        }
+      }
 
-      if (res.data.success) {
+      if (res?.data?.success) {
         showToast(res.data.message || 'Appointment booked successfully!', 'success');
         setModalOpen(false);
         setCustomerName('');
