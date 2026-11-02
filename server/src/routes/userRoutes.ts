@@ -1,5 +1,5 @@
 import express from 'express';
-import { getUsers, getUserById, toggleUserStatus } from '../controllers/userController';
+import { getUsers, getUserById, toggleUserStatus, createUserByAdmin } from '../controllers/userController';
 import { protect } from '../middlewares/authMiddleware';
 import { authorize } from '../middlewares/roleMiddleware';
 
@@ -9,6 +9,7 @@ router.use(protect);
 router.use(authorize('ADMIN', 'SUPER_ADMIN'));
 
 router.get('/', getUsers);
+router.post('/', createUserByAdmin);
 router.get('/:id', getUserById);
 router.put('/:id/toggle-status', toggleUserStatus);
 

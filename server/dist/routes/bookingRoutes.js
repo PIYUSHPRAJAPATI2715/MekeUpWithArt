@@ -14,5 +14,6 @@ router.get('/my-bookings', authMiddleware_1.protect, bookingController_1.getMyBo
 router.put('/:id/cancel', authMiddleware_1.protect, bookingController_1.cancelBooking);
 // Admin Routes
 router.get('/admin/all', authMiddleware_1.protect, (0, roleMiddleware_1.authorize)('ADMIN', 'SUPER_ADMIN'), bookingController_1.getAllBookings);
+router.post('/admin/create', authMiddleware_1.protect, (0, roleMiddleware_1.authorize)('ADMIN', 'SUPER_ADMIN'), bookingController_1.createBookingByAdmin);
 router.put('/admin/:id/status', authMiddleware_1.protect, (0, roleMiddleware_1.authorize)('ADMIN', 'SUPER_ADMIN'), bookingController_1.updateBookingStatus);
 exports.default = router;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cancelBooking = exports.updateBookingStatus = exports.getAllBookings = exports.getMyBookings = exports.createBooking = exports.getSlots = void 0;
+exports.createBookingByAdmin = exports.cancelBooking = exports.updateBookingStatus = exports.getAllBookings = exports.getMyBookings = exports.createBooking = exports.getSlots = void 0;
 const Booking_1 = require("../models/Booking");
 const Service_1 = require("../models/Service");
 const Package_1 = require("../models/Package");
@@ -242,3 +242,86 @@ const cancelBooking = async (req, res) => {
     }
 };
 exports.cancelBooking = cancelBooking;
+const createBookingByAdmin = async (req, res) => {
+    try {
+        const { itemType = 'service', itemId, date, timeSlot, staff, customerName, customerPhone, customerEmail, notes = 'Walk-in / Phone booking created by Admin', price: customPrice, status = 'Confirmed', } = req.body;
+        if (!itemId || !date || !timeSlot || !customerName || !customerPhone) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide Service/Package, Date, Time Slot, Customer Name, and Phone number',
+            });
+        }
+        let itemName = '';
+        let price = customPrice !== undefined && customPrice !== '' ? Number(customPrice) : 0;
+        let duration = 45;
+        if (itemType === 'service') {
+            const service = await Service_1.Service.findById(itemId);
+            if (!service) {
+                return res.status(404).json({ success: false, message: 'Service not found' });
+            }
+            itemName = service.name;
+            if (!customPrice) {
+                price = service.discountPrice || service.price;
+            }
+            duration = service.duration || 45;
+        }
+        else if (itemType === 'package') {
+            const pkg = await Package_1.Package.findById(itemId);
+            if (!pkg) {
+                return res.status(404).json({ success: false, message: 'Package not found' });
+            }
+            itemName = pkg.name;
+            if (!customPrice) {
+                price = pkg.discountPrice || pkg.originalPrice;
+            }
+            duration = pkg.duration || 60;
+        }
+        const cleanPhone = customerPhone.replace(/\D/g, '');
+        const cleanEmail = customerEmail ? customerEmail.trim() : `walkin_${cleanPhone}@makeupwithart.local`;
+        const dateFormatted = date.replace(/-/g, '');
+        const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+        const bookingId = `MWA-${dateFormatted}-${randomSuffix}`;
+        const booking = await Booking_1.Booking.create({
+            bookingId,
+            customer: req.user?._id,
+            itemType,
+            itemId,
+            itemName,
+            price,
+            date,
+            timeSlot,
+            duration,
+            staff: staff || null,
+            customerName: customerName.trim(),
+            customerPhone: cleanPhone,
+            customerEmail: cleanEmail,
+            notes: notes || 'Walk-in / Admin Phone Booking',
+            status: status || 'Confirmed',
+        });
+        await AuditLog_1.AuditLog.create({
+            admin: req.user?._id,
+            adminEmail: req.user?.email || '',
+            action: 'ADMIN_CREATE_BOOKING',
+            entity: 'Booking',
+            entityId: booking._id.toString(),
+            details: `Admin booked appointment #${bookingId} for ${customerName} (${itemName} on ${date} at ${timeSlot})`,
+        });
+        if (status === 'Confirmed') {
+            const waText = (0, whatsappService_1.formatBookingWhatsAppText)(booking, 'CONFIRMED');
+            (0, whatsappService_1.sendWhatsAppMessage)(cleanPhone, waText).catch(console.error);
+        }
+        else {
+            const waText = (0, whatsappService_1.formatBookingWhatsAppText)(booking, 'CREATED');
+            (0, whatsappService_1.sendWhatsAppMessage)(cleanPhone, waText).catch(console.error);
+        }
+        res.status(201).json({
+            success: true,
+            message: `Appointment #${bookingId} booked successfully for ${customerName}!`,
+            data: booking,
+        });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+exports.createBookingByAdmin = createBookingByAdmin;

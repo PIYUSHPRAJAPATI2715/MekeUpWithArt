@@ -63,6 +63,7 @@ export const packageApi = {
 export const bookingApi = {
   getSlots: (date: string, duration?: number) => api.get('/bookings/slots', { params: { date, duration } }),
   create: (data: any) => api.post('/bookings', data),
+  createAdmin: (data: any) => api.post('/bookings/admin/create', data),
   getMyBookings: () => api.get('/bookings/my-bookings'),
   cancel: (id: string, cancellationReason?: string) => api.put(`/bookings/${id}/cancel`, { cancellationReason }),
   getAllAdmin: (params?: any) => api.get('/bookings/admin/all', { params }),
@@ -88,6 +89,7 @@ export const adminApi = {
 export const userApi = {
   getAll: (params?: any) => api.get('/users', { params }),
   getById: (id: string) => api.get(`/users/${id}`),
+  create: (data: any) => api.post('/users', data),
   toggleStatus: (id: string) => api.put(`/users/${id}/toggle-status`),
 };
 

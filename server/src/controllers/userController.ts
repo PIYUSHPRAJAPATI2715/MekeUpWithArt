@@ -98,3 +98,57 @@ export const toggleUserStatus = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const createUserByAdmin = async (req: AuthRequest, res: Response) => {
+  try {
+    const { name, phone, email, password, role = 'CUSTOMER' } = req.body;
+
+    if (!name || !phone) {
+      return res.status(400).json({ success: false, message: 'Customer Name and Phone number are required' });
+    }
+
+    const cleanPhone = phone.replace(/\D/g, '');
+    const userEmail = email ? email.toLowerCase().trim() : `client_${cleanPhone}@makeupwithart.local`;
+
+    const existingUser = await User.findOne({
+      $or: [{ phone: cleanPhone }, { phone }, { email: userEmail }],
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: `Customer already registered with this phone or email (${existingUser.name})`,
+        data: existingUser,
+      });
+    }
+
+    const userPassword = password || 'Customer@123';
+
+    const user = await User.create({
+      name: name.trim(),
+      phone: cleanPhone,
+      email: userEmail,
+      password: userPassword,
+      role: role || 'CUSTOMER',
+      isActive: true,
+      avatar: '/logo.png',
+    });
+
+    await AuditLog.create({
+      admin: req.user?._id,
+      adminEmail: req.user?.email || '',
+      action: 'CREATE_USER',
+      entity: 'User',
+      entityId: user._id.toString(),
+      details: `Admin created customer profile for ${name} (${cleanPhone})`,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Customer added successfully',
+      data: user,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

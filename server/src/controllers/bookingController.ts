@@ -257,3 +257,104 @@ export const cancelBooking = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const createBookingByAdmin = async (req: AuthRequest, res: Response) => {
+  try {
+    const {
+      itemType = 'service',
+      itemId,
+      date,
+      timeSlot,
+      staff,
+      customerName,
+      customerPhone,
+      customerEmail,
+      notes = 'Walk-in / Phone booking created by Admin',
+      price: customPrice,
+      status = 'Confirmed',
+    } = req.body;
+
+    if (!itemId || !date || !timeSlot || !customerName || !customerPhone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide Service/Package, Date, Time Slot, Customer Name, and Phone number',
+      });
+    }
+
+    let itemName = '';
+    let price = customPrice !== undefined && customPrice !== '' ? Number(customPrice) : 0;
+    let duration = 45;
+
+    if (itemType === 'service') {
+      const service = await Service.findById(itemId);
+      if (!service) {
+        return res.status(404).json({ success: false, message: 'Service not found' });
+      }
+      itemName = service.name;
+      if (!customPrice) {
+        price = service.discountPrice || service.price;
+      }
+      duration = service.duration || 45;
+    } else if (itemType === 'package') {
+      const pkg = await Package.findById(itemId);
+      if (!pkg) {
+        return res.status(404).json({ success: false, message: 'Package not found' });
+      }
+      itemName = pkg.name;
+      if (!customPrice) {
+        price = pkg.discountPrice || pkg.originalPrice;
+      }
+      duration = pkg.duration || 60;
+    }
+
+    const cleanPhone = customerPhone.replace(/\D/g, '');
+    const cleanEmail = customerEmail ? customerEmail.trim() : `walkin_${cleanPhone}@makeupwithart.local`;
+
+    const dateFormatted = date.replace(/-/g, '');
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const bookingId = `MWA-${dateFormatted}-${randomSuffix}`;
+
+    const booking = await Booking.create({
+      bookingId,
+      customer: req.user?._id,
+      itemType,
+      itemId,
+      itemName,
+      price,
+      date,
+      timeSlot,
+      duration,
+      staff: staff || null,
+      customerName: customerName.trim(),
+      customerPhone: cleanPhone,
+      customerEmail: cleanEmail,
+      notes: notes || 'Walk-in / Admin Phone Booking',
+      status: status || 'Confirmed',
+    });
+
+    await AuditLog.create({
+      admin: req.user?._id,
+      adminEmail: req.user?.email || '',
+      action: 'ADMIN_CREATE_BOOKING',
+      entity: 'Booking',
+      entityId: booking._id.toString(),
+      details: `Admin booked appointment #${bookingId} for ${customerName} (${itemName} on ${date} at ${timeSlot})`,
+    });
+
+    if (status === 'Confirmed') {
+      const waText = formatBookingWhatsAppText(booking, 'CONFIRMED');
+      sendWhatsAppMessage(cleanPhone, waText).catch(console.error);
+    } else {
+      const waText = formatBookingWhatsAppText(booking, 'CREATED');
+      sendWhatsAppMessage(cleanPhone, waText).catch(console.error);
+    }
+
+    res.status(201).json({
+      success: true,
+      message: `Appointment #${bookingId} booked successfully for ${customerName}!`,
+      data: booking,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

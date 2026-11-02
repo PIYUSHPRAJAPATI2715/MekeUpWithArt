@@ -11,6 +11,7 @@ const router = express_1.default.Router();
 router.use(authMiddleware_1.protect);
 router.use((0, roleMiddleware_1.authorize)('ADMIN', 'SUPER_ADMIN'));
 router.get('/', userController_1.getUsers);
+router.post('/', userController_1.createUserByAdmin);
 router.get('/:id', userController_1.getUserById);
 router.put('/:id/toggle-status', userController_1.toggleUserStatus);
 exports.default = router;
